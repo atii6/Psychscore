@@ -1,0 +1,19 @@
+{
+  "extends": ["react-app", "react-app/jest"],
+  "rules": {
+    "no-console": [
+      "error",
+      {
+        "allow": ["warn", "info"]
+      }
+    ],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ]
+  }
+}
