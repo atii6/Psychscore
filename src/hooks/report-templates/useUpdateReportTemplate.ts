@@ -1,6 +1,7 @@
 import { fetchWrapper } from "@/utilitites/helpers/fetchWrapper";
 import type { ReportTemplateType } from "@/utilitites/types/ReportTemplate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type MutationVariables = {
   templateData: ReportTemplateType;
@@ -26,6 +27,7 @@ export default function useUpdateReportTemplate() {
       queryClient.invalidateQueries({
         queryKey: ["templates"],
       });
+      toast.success("Template updated successfully.");
     },
   });
 }

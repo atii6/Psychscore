@@ -27,7 +27,7 @@ function CustomAlertDialog({
   description,
   dialogCancelText = "Cancel",
   onAction,
-  actionButtonText,
+  actionButtonText = "Delete",
   actionButtonStyles,
 }: Props) {
   return (

@@ -1,17 +1,19 @@
-export interface Subtests {
+export type ScoreType = "standard" | "scaled";
+export interface SubtestType {
   canonical_name: string;
   display_name: string;
   aliases: string[];
-  score_type: "standard" | "scaled";
+  score_type: ScoreType;
   is_user_defined: boolean;
 }
 
-export type TestSubtestDefinition = {
+export type TestDefinitionType = {
+  id: number;
   test_name: string;
   test_aliases: string[];
-  subtests: Subtests[];
+  subtests: SubtestType[];
   subtest_placeholders: string[];
-  is_system_template: boolean;
-  created_by_id: string;
-  created_by: string;
+  is_system_template?: boolean;
+  created_by_id?: string;
+  created_by?: string;
 };

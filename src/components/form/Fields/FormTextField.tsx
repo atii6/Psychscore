@@ -4,8 +4,6 @@ import { Input, InputProps } from "@/components/ui/input";
 import { GridItem } from "@/components/ui/Grid";
 import ErrorText from "./ErrorText";
 import type { GridItemProps } from "@/components/ui/Grid/GridItem";
-import { ArrowUpToLine } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 
 type FormTextFieldProps = {
@@ -14,7 +12,6 @@ type FormTextFieldProps = {
   type?: string;
   size?: GridItemProps["size"];
   disableGutter?: boolean;
-  previewImage?: string;
   className?: string;
   inputFieldStyles?: string;
   onFileChange?: (file: File) => void;
@@ -28,7 +25,6 @@ const FormTextField: React.FC<FormTextFieldProps> = ({
   size = 6,
   readOnly = false,
   disableGutter = false,
-  previewImage,
   className,
   inputFieldStyles,
   onFileChange,
@@ -39,18 +35,15 @@ const FormTextField: React.FC<FormTextFieldProps> = ({
     formState: { isSubmitting },
   } = useFormContext();
 
-  const isFileType = type === "file";
-  const { disabled } = rest;
-
   return (
     <GridItem className={className} size={size}>
       {label && (
         <Label
-          htmlFor="firstName"
-          className="text-sm font-medium"
-          style={{ color: "var(--text-primary)" }}
+          htmlFor={name}
+          className="text-sm font-medium text-[var(--text-primary)]"
         >
           {label}
+          {required && <span className="text-red-500 ml-0.1">*</span>}
         </Label>
       )}
       <Controller
@@ -64,7 +57,6 @@ const FormTextField: React.FC<FormTextFieldProps> = ({
               readOnly={readOnly || isSubmitting}
               id={name}
               type={type}
-              disabled={disabled}
             />
 
             {!disableGutter && (

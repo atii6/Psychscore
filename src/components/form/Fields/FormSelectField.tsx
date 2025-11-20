@@ -28,6 +28,8 @@ type FormSelectFieldProps = {
   readonly?: boolean;
   placeholder?: string;
   className?: string;
+  value?: string;
+  fieldStyles?: string;
 } & React.SelectHTMLAttributes<HTMLSelectElement>;
 
 const FormSelectField: React.FC<FormSelectFieldProps> = ({
@@ -41,6 +43,7 @@ const FormSelectField: React.FC<FormSelectFieldProps> = ({
   onChange,
   placeholder,
   className,
+  value,
 }) => {
   const {
     control,
@@ -57,7 +60,7 @@ const FormSelectField: React.FC<FormSelectFieldProps> = ({
           className="text-sm font-medium"
           style={{ color: "var(--text-primary)" }}
         >
-          Gender
+          {label}
           {required && <span className="text-red-500 ml-0.1">*</span>}
         </Label>
       )}
@@ -65,15 +68,17 @@ const FormSelectField: React.FC<FormSelectFieldProps> = ({
         name={name}
         control={control}
         render={({ field, fieldState }) => {
+          console.log("Controller", field);
           return (
             <>
               <Select
+                {...field}
                 onValueChange={(value) => {
                   field.onChange(value);
                   onChange && onChange(value);
                 }}
+                value={value}
                 disabled={isSelectDisabled}
-                {...field}
               >
                 <SelectTrigger>
                   <SelectValue

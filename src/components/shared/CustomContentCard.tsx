@@ -17,6 +17,7 @@ type Props = {
   iconProps?: React.SVGProps<SVGSVGElement>;
   cardStyles?: string;
   contentContainerStyles?: string;
+  descriptionStyles?: string;
 };
 
 function CustomContentCard({
@@ -27,6 +28,7 @@ function CustomContentCard({
   iconProps,
   cardStyles,
   contentContainerStyles,
+  descriptionStyles,
 }: Props) {
   return (
     <Card
@@ -49,8 +51,10 @@ function CustomContentCard({
 
           {description && (
             <CardDescription
-              className="text-sm"
-              style={{ color: "var(--text-secondary)" }}
+              className={cn(
+                "text-sm text-[var(--text-secondary)]",
+                descriptionStyles
+              )}
             >
               {description}
             </CardDescription>

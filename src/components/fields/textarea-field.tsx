@@ -2,34 +2,24 @@ import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import AttachmentCard, {
-  type AttachmentCardType,
-} from "@/components/shared/attachment-card";
 import { GridItem } from "@/components/ui/Grid";
 import type { GridItemProps } from "@/components/ui/Grid/GridItem";
 import ErrorText from "./error-text";
+import { Label } from "../ui/label";
 
-type TextareaFieldProps = {
-  label?: string;
-  value: string;
-  onChange: (val: string) => void;
-  name?: string;
-  required?: boolean;
-  rows?: number;
-  placeholder?: string;
+export type TextareaFieldProps = {
+  name: string;
+  label: string;
   size?: GridItemProps["size"];
-  className?: string;
-  maxCharactersLength?: number;
   disableGutter?: boolean;
-  showAttachmentButton?: boolean;
-  attachments?: AttachmentCardType[];
-  handleUploads?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  setAttachments?: (files: AttachmentCardType[]) => void;
-  isUploadingFile?: boolean;
-  onAttachmentRemove?: (index: number) => void;
+  className?: string;
+  inputStyles?: string;
   errorMessage?: string;
-  showCharacterCount?: boolean;
-};
+  onChange?: (value: string) => void;
+} & Omit<
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  "name" | "type" | "label"
+>;
 
 const TextareaField: React.FC<TextareaFieldProps> = ({
   label,
@@ -40,35 +30,28 @@ const TextareaField: React.FC<TextareaFieldProps> = ({
   rows = 4,
   placeholder,
   className,
-  size = 12,
-  maxCharactersLength = 1000,
+  size = 6,
   disableGutter = false,
-  showAttachmentButton,
-  attachments,
-  handleUploads,
-  isUploadingFile,
-  onAttachmentRemove,
   errorMessage,
-  showCharacterCount,
 }) => {
   return (
     <GridItem className={className} size={size}>
       {label && (
-        <label htmlFor={name} className="text-sm font-medium text-[#262626]">
+        <Label
+          htmlFor={name}
+          className="text-sm font-medium text-[var(--text-primary)]"
+        >
           {label}
-          {required && <span className="text-red-500 ml-0.5">*</span>}
-        </label>
+          {required && <span className="text-red-500 ml-0.1">*</span>}
+        </Label>
       )}
       <div className="relative flex flex-col gap-1">
         <Textarea
           id={name}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => onChange?.(e.target.value)}
           rows={rows}
-          maxLength={maxCharactersLength}
           placeholder={placeholder}
-          showAttachmentButton={showAttachmentButton}
-          showCharacterCount={showCharacterCount}
         />
 
         {!disableGutter && (
@@ -76,49 +59,7 @@ const TextareaField: React.FC<TextareaFieldProps> = ({
             <ErrorText message={errorMessage || ""} />
           </div>
         )}
-
-        {showAttachmentButton && (
-          <>
-            <Input
-              id="file-upload"
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              onChange={handleUploads}
-              className="hidden"
-            />
-            <label
-              htmlFor="file-upload"
-              className="absolute left-3 bottom-7 z-20 flex items-center gap-1.5 text-sm text-[#385C80] cursor-pointer"
-            >
-              <ImageIcon className="w-4 h-4" />
-              Photo/Video
-            </label>
-          </>
-        )}
       </div>
-
-      {attachments && attachments.length > 0 && (
-        <div className="flex gap-4 mt-2">
-          {attachments.map((file, index) => (
-            <AttachmentCard
-              key={index}
-              title={file.title}
-              details={file.details}
-              fileTypeTag={file.fileTypeTag}
-              file={file.file}
-              isUploading={isUploadingFile || false}
-              previewUrl={file.url}
-              thumbnail={file.url}
-              cardType="file"
-              onClose={() => onAttachmentRemove?.(index)}
-              isRemovable
-              width={70}
-              height={70}
-            />
-          ))}
-        </div>
-      )}
     </GridItem>
   );
 };
