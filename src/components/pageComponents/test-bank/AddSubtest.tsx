@@ -1,3 +1,4 @@
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useFormContext } from "react-hook-form";
@@ -10,7 +11,10 @@ type AddSubtestProps = {
 
 function AddSubtest({ isEditingTest = false }: AddSubtestProps) {
   const { watch, setValue } = useFormContext();
-  const subtests: SubtestType[] = watch("subtests") || [];
+  const subtests: SubtestType[] = React.useMemo(
+    () => watch("subtests") || [],
+    [watch("subtests")]
+  );
 
   const handleAddSubtestToNewTest = () => {
     const newSubtest: SubtestType = {
@@ -35,7 +39,11 @@ function AddSubtest({ isEditingTest = false }: AddSubtestProps) {
 
   const handleDeleteSubtestFromNewTest = (index: number) => {
     const updated = subtests.filter((_: SubtestType, i: number) => i !== index);
-    setValue("subtests", updated, { shouldDirty: true });
+    setValue("subtests", updated, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
   };
 
   return (
