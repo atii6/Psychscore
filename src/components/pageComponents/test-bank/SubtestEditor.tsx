@@ -16,14 +16,11 @@ type SubtestEditorProps = {
 const SubtestEditor = ({ subtest, onUpdate, onDelete }: SubtestEditorProps) => {
   const [localSubtest, setLocalSubtest] = React.useState(subtest);
 
-  console.log("localSubtest", localSubtest);
-
   React.useEffect(() => {
     onUpdate(localSubtest);
   }, [localSubtest]);
 
   const handleChange = (field: keyof SubtestType, value: any) => {
-    console.log("handleChange", { field, value });
     setLocalSubtest((prev) => ({
       ...prev,
       [field]: value,

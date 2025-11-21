@@ -21,8 +21,6 @@ export default function TemplatesPage() {
   const systemTempsFlat = ReportTemplate?.filter((t) => t.is_system_template);
   const userTempsFlat = ReportTemplate?.filter((t) => !t.is_system_template);
 
-  console.log("ReportTemplate", ReportTemplate);
-
   const groupByCategory = (templates: ReportTemplateType[]) => {
     return templates.reduce(
       (acc: Record<string, ReportTemplateType[]>, temp) => {

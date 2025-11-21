@@ -1,4 +1,5 @@
 export interface GeneratedReport {
+  id: number;
   assessment_id: number;
   template_id?: string | null;
   report_content: string;

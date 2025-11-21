@@ -5,6 +5,19 @@ export type AssessmentStatusType =
 
 export type GenderType = (typeof GENDER)[keyof typeof GENDER];
 
+export type ExtractedScore = {
+  test_name: string;
+  subtest_name: string;
+  descriptor?: string;
+  score_type?: string;
+  display_name?: string;
+  scaled_score?: number;
+  canonical_name?: string;
+  composite_score?: number;
+  percentile_rank?: number;
+  confidence_interval?: number;
+};
+
 export type AssessmentType = {
   id: number;
 
@@ -21,7 +34,7 @@ export type AssessmentType = {
 
   file_urls: string[];
 
-  extracted_scores?: Record<string, any>;
+  extracted_scores?: ExtractedScore[];
 
   status: AssessmentStatusType;
 

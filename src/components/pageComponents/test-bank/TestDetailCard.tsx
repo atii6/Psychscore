@@ -2,15 +2,8 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Plus, Save, X } from "lucide-react";
-import SubtestEditor from "./SubtestEditor";
-import type {
-  SubtestType,
-  TestDefinitionType,
-} from "@/utilitites/types/TestSubtestDefinitions";
+import { Save, X } from "lucide-react";
+import type { TestDefinitionType } from "@/utilitites/types/TestSubtestDefinitions";
 import SubtestCard from "./SubtestCard";
 import TestAliasesBadge from "./TestAliasesBadge";
 import TestUserActions from "./TestUserActions";
@@ -73,8 +66,6 @@ function TestDetailCard({ testDef, canEdit }: Props) {
     subtests: testDef?.subtests || [],
   };
 
-  console.log("initialValues", initialValues);
-
   const validationSchema = z.object({
     test_name: z.string().min(1, "Test name is required"),
     test_aliases: z.preprocess((val) => {
@@ -93,8 +84,6 @@ function TestDetailCard({ testDef, canEdit }: Props) {
   });
   type TestDefValidationSchema = z.infer<typeof validationSchema>;
   const handleSaveEdit = async (values: TestDefValidationSchema) => {
-    console.log("handleSaveEdit", values);
-
     const updatedTest = {
       ...values,
       id: testDef.id,

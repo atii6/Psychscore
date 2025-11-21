@@ -68,7 +68,6 @@ const FormSelectField: React.FC<FormSelectFieldProps> = ({
         name={name}
         control={control}
         render={({ field, fieldState }) => {
-          console.log("Controller", field);
           return (
             <>
               <Select
