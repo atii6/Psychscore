@@ -33,7 +33,7 @@ const TextField: React.FC<TextFieldProps> = ({
           style={{ color: "var(--text-primary)" }}
         >
           {label}
-          {required && <span className="text-red-500 ml-0.1">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </Label>
       )}
       <div className="flex flex-col gap-1">

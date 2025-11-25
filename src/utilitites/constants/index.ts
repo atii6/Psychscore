@@ -76,3 +76,13 @@ export const TEMPLATE_CATEGORY_OPTIONS = [
   { value: "neuropsychological", label: "Neuropsychological" },
   { value: "self-report", label: "Self-Report" },
 ];
+
+export const SCORE_TYPE = {
+  STANDARD: "standard",
+  SCALED: "scaled",
+};
+
+export const SCORE_TYPE_OPTIONS = [
+  { value: "standard", label: "Standard Score" },
+  { value: "scaled", label: "Scaled Score" },
+];

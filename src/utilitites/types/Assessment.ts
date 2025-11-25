@@ -1,4 +1,5 @@
 import { ASSESSMENT_STATUS, GENDER } from "../constants";
+import type { ScoreType } from "./TestSubtestDefinitions";
 
 export type AssessmentStatusType =
   (typeof ASSESSMENT_STATUS)[keyof typeof ASSESSMENT_STATUS];
@@ -9,7 +10,7 @@ export type ExtractedScore = {
   test_name: string;
   subtest_name: string;
   descriptor?: string;
-  score_type?: string;
+  score_type?: ScoreType;
   display_name?: string;
   scaled_score?: number;
   canonical_name?: string;

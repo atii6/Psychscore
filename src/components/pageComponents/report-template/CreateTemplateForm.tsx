@@ -107,12 +107,14 @@ function CreateTemplateForm({
           name="template_name"
           label="Template Name"
           placeholder="e.g., My WISC-V Cognitive Report"
+          required
         />
         <FormTextField
           size={3}
           name="test_type"
           label="Test Type"
           placeholder="e.g., WISC-V, WAIS-IV, WJ-IV"
+          required
         />
         <FormSelectField
           name="category"

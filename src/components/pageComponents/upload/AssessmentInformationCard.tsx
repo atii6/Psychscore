@@ -32,8 +32,18 @@ function AssessmentInformationCard({}: Props) {
       }}
     >
       <Grid>
-        <FormTextField size={3} name="client_first_name" label="First Name" />
-        <FormTextField size={3} name="client_last_name" label="Last Name" />
+        <FormTextField
+          size={3}
+          name="client_first_name"
+          label="First Name"
+          required
+        />
+        <FormTextField
+          size={3}
+          name="client_last_name"
+          label="Last Name"
+          required
+        />
 
         <FormSelectField
           size={3}

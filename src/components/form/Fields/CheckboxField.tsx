@@ -37,7 +37,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({
       {label && (
         <label htmlFor={name} className="text-sm font-medium text-[#262626]">
           {label}
-          {required && <span className="text-red-500 ml-0.1">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
       )}
       <Controller

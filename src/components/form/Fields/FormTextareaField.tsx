@@ -44,7 +44,7 @@ const FormTextareaField: React.FC<FormTextareaFieldProps> = ({
           style={{ color: "var(--text-primary)" }}
         >
           {label}
-          {required && <span className="text-red-500 ml-0.1">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </Label>
       )}
       <Controller

@@ -2,9 +2,9 @@ import React from "react";
 import { useFormContext, Controller } from "react-hook-form";
 import ErrorText from "./ErrorText";
 import { GridItem } from "@/components/ui/Grid";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { GridItemProps } from "@/components/ui/Grid/GridItem";
-import type { SelectableFormOptions } from "@/utilities/types/common/SelectableFormOptions";
+import type { SelectableFormOptions } from "./FormSelectField";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 type RadioButtonFormFieldProps = {
   name: string;
@@ -20,7 +20,7 @@ const RadioButtonFormField: React.FC<RadioButtonFormFieldProps> = ({
   name,
   label,
   required,
-  size = 12,
+  size = 6,
   options,
   orientation = "horizontal",
   className,
@@ -33,7 +33,7 @@ const RadioButtonFormField: React.FC<RadioButtonFormFieldProps> = ({
       {label && (
         <label htmlFor={name} className="text-sm font-medium text-gray-700">
           {label}
-          {required && <span className="text-red-500 ml-0.1">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
       )}
       <Controller
@@ -47,8 +47,8 @@ const RadioButtonFormField: React.FC<RadioButtonFormFieldProps> = ({
                   orientation === "vertical" ? "flex-col " : ""
                 }`}
               >
-                {options.map((option) => (
-                  <div key={option.value}>
+                {options.map((option, index) => (
+                  <div key={index}>
                     <label
                       htmlFor={`${name}-${option.value}`}
                       className={`

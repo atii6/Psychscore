@@ -3,7 +3,7 @@ import { GridItem } from "@/components/ui/Grid";
 import type { GridItemProps } from "@/components/ui/Grid/GridItem";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import type { SelectableFormOptions } from "@/utilities/types/common/SelectableFormOptions";
+import type { SelectableFormOptions } from "../form/Fields/FormSelectField";
 
 type CheckboxFieldProps = {
   name: string;
@@ -18,7 +18,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({
   name,
   label,
   required,
-  size = 12,
+  size = 6,
   options,
   labelStyles,
   ...rest
@@ -30,15 +30,15 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({
       {label && (
         <label htmlFor={name} className="text-sm font-medium text-gray-700">
           {label}
-          {required && <span className="text-red-500 ml-0.1">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </label>
       )}
 
       <div className="flex flex-col items-start justify-start gap-4">
-        {options?.map((option) => {
+        {options?.map((option, index) => {
           const checkboxId = `${name}-${option.label}`;
           return (
-            <div key={option.value} className="flex items-start gap-3">
+            <div key={index} className="flex items-start gap-3">
               <Checkbox
                 id={checkboxId}
                 checked={value}

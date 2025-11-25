@@ -61,7 +61,7 @@ const FormSelectField: React.FC<FormSelectFieldProps> = ({
           style={{ color: "var(--text-primary)" }}
         >
           {label}
-          {required && <span className="text-red-500 ml-0.1">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </Label>
       )}
       <Controller
@@ -71,13 +71,12 @@ const FormSelectField: React.FC<FormSelectFieldProps> = ({
           return (
             <>
               <Select
-                {...field}
                 onValueChange={(value) => {
                   field.onChange(value);
                   onChange && onChange(value);
                 }}
-                value={value}
                 disabled={isSelectDisabled}
+                {...field}
               >
                 <SelectTrigger>
                   <SelectValue

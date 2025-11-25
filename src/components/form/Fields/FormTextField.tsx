@@ -43,7 +43,7 @@ const FormTextField: React.FC<FormTextFieldProps> = ({
           className="text-sm font-medium text-[var(--text-primary)]"
         >
           {label}
-          {required && <span className="text-red-500 ml-0.1">*</span>}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
         </Label>
       )}
       <Controller
