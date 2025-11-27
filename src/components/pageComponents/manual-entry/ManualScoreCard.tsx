@@ -21,8 +21,8 @@ function ManualScoreCard({ tests, setTests }: Props) {
           {
             subtest_name: "",
             score_type: "standard",
-            composite_score: "",
-            percentile_rank: "",
+            composite_score: 0,
+            percentile_rank: 0,
             descriptor: "",
           },
         ],

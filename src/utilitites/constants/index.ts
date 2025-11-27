@@ -80,6 +80,7 @@ export const TEMPLATE_CATEGORY_OPTIONS = [
 export const SCORE_TYPE = {
   STANDARD: "standard",
   SCALED: "scaled",
+  PERCENTILE: "percentile",
 };
 
 export const SCORE_TYPE_OPTIONS = [

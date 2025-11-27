@@ -14,6 +14,7 @@ import StandardScoreDescriptorTable from "@/components/pageComponents/score-refe
 import CustomContentCard from "@/components/shared/CustomContentCard";
 import useGetAllUserScoreDescriptors from "@/hooks/user-score-descriptor/useGetAllScoreDescriptors";
 import useDeleteScoreDescriptor from "@/hooks/user-score-descriptor/useDeleteUserScoreDescriptor";
+import PagesHeader from "@/components/shared/PagesHeader";
 
 export default function ScoreDescriptorsPage() {
   const [isCreating, setIsCreating] = React.useState(false);
@@ -51,20 +52,11 @@ export default function ScoreDescriptorsPage() {
       style={{ backgroundColor: "var(--background)" }}
     >
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1
-              className="text-3xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Score Descriptors
-            </h1>
-            <p className="mt-1" style={{ color: "var(--text-secondary)" }}>
-              Manage standard and custom descriptive terms for psychological
-              assessments
-            </p>
-          </div>
-        </div>
+        <PagesHeader
+          title="Score Descriptors"
+          description="Manage standard and custom descriptive terms for psychological
+              assessments"
+        />
 
         <Tabs defaultValue="system" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">

@@ -1,5 +1,6 @@
 import CustomContentCard from "@/components/shared/CustomContentCard";
 import { Button } from "@/components/ui/button";
+import type { UploadFileType } from "@/utilitites/types/UploadFile";
 import { FileText, Play } from "lucide-react";
 
 export type UploadedFile = {
@@ -9,9 +10,9 @@ export type UploadedFile = {
 };
 
 type Props = {
-  uploadedFiles: UploadedFile[];
-  removeFile: any;
-  handleProcessFiles: any;
+  uploadedFiles: UploadFileType[];
+  removeFile: (id: number, name: string) => void;
+  handleProcessFiles: () => Promise<void>;
   isProcessing: boolean;
   hasProcessedFiles: boolean;
 };
@@ -25,7 +26,7 @@ function FileUploadingCard({
 }: Props) {
   return (
     <CustomContentCard
-      title="Uploaded Files ({uploadedFiles.length})"
+      title={`Uploaded Files (${uploadedFiles.length})`}
       Icon={FileText}
       iconProps={{
         className: "w-6 h-6",
@@ -39,17 +40,18 @@ function FileUploadingCard({
         >
           <div>
             <p className="font-medium" style={{ color: "var(--text-primary)" }}>
-              {file.name}
+              {file.original_name}
             </p>
             <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-              {(file.size / 1024 / 1024).toFixed(2)} MB
+              {(file.size! / 1024 / 1024).toFixed(2)} MB
             </p>
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => removeFile(file.name)}
+            onClick={() => removeFile(file.id, file.filename)}
             className="text-red-600 hover:text-red-700"
+            type="button"
           >
             Remove
           </Button>
@@ -65,6 +67,7 @@ function FileUploadingCard({
               background:
                 "linear-gradient(135deg, var(--primary-blue), var(--secondary-blue))",
             }}
+            type="button"
           >
             <Play className="w-5 h-5 mr-2" />
             {isProcessing ? "Processing Files..." : "Process Files"}

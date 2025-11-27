@@ -18,12 +18,15 @@ import {
   GENDER,
   PRONOUN_SETS,
 } from "@/utilitites/constants";
+import type { ScoreType } from "@/utilitites/types/TestSubtestDefinitions";
+import CreateAssessmentHeader from "@/components/pageComponents/manual-entry/CreateAssessmentHeader";
 
 export type ScoresType = {
   subtest_name: string;
   score_type: string;
-  composite_score: string;
-  percentile_rank: string;
+  composite_score: number;
+  percentile_rank: number;
+  scaled_score?: number;
   descriptor: string;
 };
 
@@ -90,6 +93,7 @@ export default function ManualEntryPage() {
       return test.scores.map((score) => ({
         ...score,
         test_name: test.test_name,
+        score_type: score.score_type as ScoreType,
       }));
     });
 
@@ -113,27 +117,11 @@ export default function ManualEntryPage() {
       style={{ backgroundColor: "var(--background)" }}
     >
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="rounded-xl border-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <div>
-            <h1
-              className="text-3xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Manual Score Entry
-            </h1>
-            <p className="mt-1" style={{ color: "var(--text-secondary)" }}>
-              Enter assessment scores directly without uploading a file.
-            </p>
-          </div>
-        </div>
+        <CreateAssessmentHeader
+          title="Manual Score Entry"
+          description="Enter assessment scores directly without uploading a file."
+          onAction={() => navigate(createPageUrl("Dashboard"))}
+        />
 
         {isError && (
           <Alert variant="destructive" className="mb-6">

@@ -1,3 +1,5 @@
+import { normalizeForMatching } from "@/utilitites/helpers/common";
+
 // 1. COMPREHENSIVE mapping using snake_case placeholder names with aliases
 export const standardizedMappings = {
   // Full Scale IQ variations
@@ -106,15 +108,6 @@ export const standardizedMappings = {
   symbol_search: ["Symbol Search", "SS", "Symbol Search (SS)"],
   coding: ["Coding", "CD", "Coding (CD)"],
   cancellation: ["Cancellation", "CA", "Cancellation (CA)"],
-};
-
-// 2. Enhanced normalization function for matching
-export const normalizeForMatching = (str: string) => {
-  if (!str) return "";
-  return str
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "") // Remove all non-alphanumeric chars
-    .trim();
 };
 
 // Pre-compute normalized mappings for ultra-fast lookups

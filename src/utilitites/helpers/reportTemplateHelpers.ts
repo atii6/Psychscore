@@ -2,25 +2,9 @@ import type { ReportTemplateType } from "../types/ReportTemplate";
 import type { TestDefinitionType } from "../types/TestSubtestDefinitions";
 import type { ExtractedScore } from "../types/Assessment";
 import { format } from "date-fns";
+import { getDescriptorFromPercentile, normalizeForMatching } from "./common";
 
 export type PlaceholderMap = Record<string, string | number>;
-
-export const getDescriptorFromPercentile = (percentileRank: string) => {
-  const pr = parseFloat(percentileRank);
-  if (isNaN(pr) || pr < 0 || pr > 100) {
-    return { descriptor: "N/A", percentile_range: "N/A" };
-  }
-
-  if (pr >= 98)
-    return { descriptor: "Extremely High", percentile_range: "98-99" };
-  if (pr >= 91) return { descriptor: "Very High", percentile_range: "91-97" };
-  if (pr >= 75)
-    return { descriptor: "Above Average", percentile_range: "75-90" };
-  if (pr >= 25) return { descriptor: "Average", percentile_range: "25-74" };
-  if (pr >= 9) return { descriptor: "Below Average", percentile_range: "9-24" };
-  if (pr >= 3) return { descriptor: "Very Low", percentile_range: "3-8" };
-  return { descriptor: "Extremely Low", percentile_range: "1-2" };
-};
 
 export const evaluateConditionalPlaceholder = (
   conditionalText: string,
@@ -83,11 +67,6 @@ export const evaluateConditionalPlaceholder = (
       return conditionMet ? trueText : falseText;
     }
   );
-};
-
-export const normalizeForMatching = (name: string) => {
-  if (!name) return "";
-  return name.toLowerCase().replace(/[^a-z0-9]/g, "");
 };
 
 export const calculateSimilarityScore = (str1: string, str2: string) => {

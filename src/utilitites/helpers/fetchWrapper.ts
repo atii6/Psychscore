@@ -91,15 +91,17 @@ export async function fetchWrapper<TData, TBody = unknown>({
   customClientErrorHandler,
   ...additionalOptions
 }: Config<TBody>): Promise<TData> {
+  const isFormData = body instanceof FormData;
+
   const options = {
     ...additionalOptions,
     method: method,
     headers: {
       ...(additionalOptions.headers || {}),
       Accept: "application/json",
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
     },
-    body: body && JSON.stringify(body), // body can be undefined, that's ok
+    body: isFormData ? body : body ? JSON.stringify(body) : undefined, // body can be undefined, that's ok
   };
   const _url = `${baseUrl}/${url}`;
 

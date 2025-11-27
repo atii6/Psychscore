@@ -11,6 +11,7 @@ import CreateTemplateForm from "@/components/pageComponents/report-template/Crea
 import TemplateCard from "@/components/pageComponents/report-template/TemplateCard";
 import { getAvailablePlaceholders } from "@/components/templates/placeholderUtils";
 import useCreateReportTemplate from "@/hooks/report-templates/useCreateReportTemplate";
+import PagesHeader from "@/components/shared/PagesHeader";
 
 export default function TemplatesPage() {
   const { data: ReportTemplate, isLoading } = useGetAllReportTemplates();
@@ -124,35 +125,15 @@ export default function TemplatesPage() {
       style={{ backgroundColor: "var(--background)" }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1
-              className="text-3xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Report Templates
-            </h1>
-            <p className="mt-1" style={{ color: "var(--text-secondary)" }}>
-              Create and manage narrative report templates
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              onClick={() => {
-                setIsCreating(true);
-                setEditingId(null);
-              }}
-              className="flex items-center gap-2 px-6 py-3 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--primary-blue), var(--secondary-blue))",
-              }}
-            >
-              <Plus className="w-5 h-5" />
-              New Template
-            </Button>
-          </div>
-        </div>
+        <PagesHeader
+          title="Report Templates"
+          description="Create and manage narrative report templates"
+          actionButtonTitle="New Template"
+          onAction={() => {
+            setIsCreating(true);
+            setEditingId(null);
+          }}
+        />
 
         {isCreating && !editingId && (
           <CreateTemplateForm onReset={() => setIsCreating(false)} />

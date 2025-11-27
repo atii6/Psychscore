@@ -9,6 +9,7 @@ import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAll
 import TestCreationForm from "@/components/pageComponents/test-bank/TestCreationForm";
 import CustomContentCard from "@/components/shared/CustomContentCard";
 import TestDetailCard from "@/components/pageComponents/test-bank/TestDetailCard";
+import PagesHeader from "@/components/shared/PagesHeader";
 
 export default function TestBankPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -79,36 +80,16 @@ export default function TestBankPage() {
       style={{ backgroundColor: "var(--background)" }}
     >
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1
-              className="text-3xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Test Bank
-            </h1>
-            <p className="mt-1" style={{ color: "var(--text-secondary)" }}>
-              Define and manage subtest definitions for consistent placeholder
-              mapping
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              onClick={() => {
-                setIsCreating(true);
-                setActiveTab(activeTab);
-              }}
-              className="flex items-center gap-2 px-6 py-3 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--primary-blue), var(--secondary-blue))",
-              }}
-            >
-              <Plus className="w-5 h-5" />
-              New Test Definition
-            </Button>
-          </div>
-        </div>
+        <PagesHeader
+          title="Test Bank"
+          description="Define and manage subtest definitions for consistent placeholder
+              mapping"
+          actionButtonTitle="New Test Definition"
+          onAction={() => {
+            setIsCreating(true);
+            setActiveTab(activeTab);
+          }}
+        />
 
         <CustomContentCard cardStyles="mb-6" contentContainerStyles="p-6">
           <div className="relative">

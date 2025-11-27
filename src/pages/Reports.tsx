@@ -9,6 +9,7 @@ import useGetAllAssessments from "@/hooks/assessments/useGetAllAssessments";
 import type { AssessmentType } from "@/utilitites/types/Assessment";
 import type { GeneratedReport } from "@/utilitites/types/GeneratedReports";
 import AssessmentReportCards from "@/components/reports/AssessmentReportCards";
+import PagesHeader from "@/components/shared/PagesHeader";
 
 export default function ReportsPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -60,19 +61,10 @@ export default function ReportsPage() {
       style={{ backgroundColor: "var(--background)" }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1
-              className="text-3xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Assessment Reports
-            </h1>
-            <p className="mt-1" style={{ color: "var(--text-secondary)" }}>
-              Generate and manage psychological assessment reports
-            </p>
-          </div>
-        </div>
+        <PagesHeader
+          title="Assessment Reports"
+          description="Generate and manage psychological assessment reports"
+        />
 
         <Card
           className="border-0 shadow-lg rounded-2xl mb-6"

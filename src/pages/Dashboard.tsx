@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { FileText, Brain, Clock, CheckCircle2, Plus } from "lucide-react";
 
@@ -9,12 +9,14 @@ import { AssessmentType } from "@/utilitites/types/Assessment";
 import StatsCard from "@/components/dashboard/StatsCard";
 import RecentAssessments from "@/components/dashboard/RecentAssessments";
 import QuickActions from "@/components/dashboard/QuickActions";
+import PagesHeader from "@/components/shared/PagesHeader";
 
 export default function Dashboard() {
   const { data: Assessment, isLoading: isLoadingAssessments } =
     useGetAllAssessments();
   const { data: GeneratedReports, isLoading: isLoadingGeneratedReports } =
     useGetAllGeneratedReports();
+  const navigate = useNavigate();
 
   const isLoading = isLoadingGeneratedReports || isLoadingAssessments;
 
@@ -38,6 +40,11 @@ export default function Dashboard() {
       a.status === "processed" && new Date(a.created_date || "") >= startOfMonth
   ).length;
 
+  const handleNewAssessment = () => {
+    const url = createPageUrl("Upload");
+    navigate(url);
+  };
+
   return (
     <div
       className="min-h-screen p-4 md:p-8"
@@ -45,31 +52,12 @@ export default function Dashboard() {
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1
-              className="text-3xl md:text-4xl font-bold"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Assessment Dashboard
-            </h1>
-            <p className="mt-2" style={{ color: "var(--text-secondary)" }}>
-              Manage psychological assessments and generate reports
-            </p>
-          </div>
-          <Link to={createPageUrl("Upload")}>
-            <Button
-              className="flex items-center gap-2 px-6 py-3 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--primary-blue), var(--secondary-blue))",
-              }}
-            >
-              <Plus className="w-5 h-5" />
-              New Assessment
-            </Button>
-          </Link>
-        </div>
+        <PagesHeader
+          title="Assessment Dashboard"
+          description="Manage psychological assessments and generate reports"
+          actionButtonTitle="New Assessment"
+          onAction={handleNewAssessment}
+        />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

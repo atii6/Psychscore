@@ -17,6 +17,8 @@ export type ExtractedScore = {
   composite_score?: number;
   percentile_rank?: number;
   confidence_interval?: number;
+  source_file?: string;
+  custom_descriptor_applied?: boolean;
 };
 
 export type AssessmentType = {

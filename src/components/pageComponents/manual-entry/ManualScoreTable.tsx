@@ -18,101 +18,11 @@ import {
 } from "@/components/ui/select";
 import { Trash2, Plus } from "lucide-react";
 import { ScoresType } from "@/pages/ManualEntry";
-
-// Descriptor calculation logic (prioritizing percentile ranks)
-const getDescriptorFromPercentile = (percentile: number) => {
-  if (percentile >= 98)
-    return { descriptor: "Extremely High", percentile_range: "98-99" };
-  if (percentile >= 91)
-    return { descriptor: "Very High", percentile_range: "91-97" };
-  if (percentile >= 75)
-    return { descriptor: "Above Average", percentile_range: "75-90" };
-  if (percentile >= 25)
-    return { descriptor: "Average", percentile_range: "25-74" };
-  if (percentile >= 9)
-    return { descriptor: "Below Average", percentile_range: "9-24" };
-  if (percentile >= 3)
-    return { descriptor: "Very Low", percentile_range: "3-8" };
-  if (percentile <= 2)
-    return { descriptor: "Extremely Low", percentile_range: "1-2" };
-  return { descriptor: "", percentile_range: "" };
-};
-
-const getDescriptorAndPercentile = (score: number) => {
-  if (score >= 130)
-    return {
-      descriptor: "Extremely High",
-      percentile_range: "98-99",
-      percentile: 99,
-    };
-  if (score >= 120)
-    return {
-      descriptor: "Very High",
-      percentile_range: "91-97",
-      percentile: 95,
-    };
-  if (score >= 110)
-    return {
-      descriptor: "Above Average",
-      percentile_range: "75-90",
-      percentile: 84,
-    };
-  if (score >= 90)
-    return { descriptor: "Average", percentile_range: "25-74", percentile: 50 };
-  if (score >= 80)
-    return {
-      descriptor: "Below Average",
-      percentile_range: "9-24",
-      percentile: 16,
-    };
-  if (score >= 70)
-    return { descriptor: "Very Low", percentile_range: "3-8", percentile: 5 };
-  if (score < 70)
-    return {
-      descriptor: "Extremely Low",
-      percentile_range: "1-2",
-      percentile: 1,
-    };
-  return { descriptor: "", percentile_range: "", percentile: "" };
-};
-
-const getScaledScoreDescriptor = (scaledScore: number) => {
-  if (scaledScore >= 17)
-    return {
-      descriptor: "Extremely High",
-      percentile: 99,
-      percentile_range: "98-99",
-    };
-  if (scaledScore >= 15)
-    return {
-      descriptor: "Very High",
-      percentile: 95,
-      percentile_range: "91-97",
-    };
-  if (scaledScore >= 12)
-    return {
-      descriptor: "Above Average",
-      percentile: 75,
-      percentile_range: "75-90",
-    };
-  if (scaledScore >= 8)
-    return { descriptor: "Average", percentile: 50, percentile_range: "25-74" };
-  if (scaledScore >= 6)
-    return {
-      descriptor: "Below Average",
-      percentile: 16,
-      percentile_range: "9-24",
-    };
-  if (scaledScore >= 4)
-    return { descriptor: "Very Low", percentile: 5, percentile_range: "3-8" };
-  if (scaledScore <= 3)
-    return {
-      descriptor: "Extremely Low",
-      percentile: 1,
-      percentile_range: "1-2",
-    };
-  return { descriptor: "", percentile: "", percentile_range: "" };
-};
+import {
+  getDescriptorAndPercentile,
+  getDescriptorFromPercentile,
+  getScaledScoreDescriptor,
+} from "@/utilitites/helpers/common";
 
 export default function ManualScoreTable({
   scores,
@@ -135,7 +45,9 @@ export default function ManualScoreTable({
     if (field === "percentile_rank") {
       const percentileValue = parseFloat(value);
       if (!isNaN(percentileValue)) {
-        const descriptorInfo = getDescriptorFromPercentile(percentileValue);
+        const descriptorInfo = getDescriptorFromPercentile(
+          String(percentileValue)
+        );
         scoreToUpdate.descriptor = descriptorInfo.descriptor;
       } else {
         // If percentile_rank is cleared or invalid, clear its derived descriptor
