@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React from "react";
 // import { Assessment, ReportTemplate, GeneratedReport } from "@/api/entities";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -13,27 +13,26 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, Loader2, FileText, BookOpen } from "lucide-react";
 import { format } from "date-fns";
-import * as lodash from "lodash";
 
 export default function GenerateReportPage() {
   const navigate = useNavigate();
-  const [assessment, setAssessment] = useState(null);
-  const [templates, setTemplates] = useState([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [assessmentId, setAssessmentId] = useState("");
-  const [availableTests, setAvailableTests] = useState([]);
-  const [selectedTest, setSelectedTest] = useState("");
+  const [assessment, setAssessment] = React.useState(null);
+  const [templates, setTemplates] = React.useState([]);
+  const [selectedTemplateId, setSelectedTemplateId] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  const [assessmentId, setAssessmentId] = React.useState("");
+  const [availableTests, setAvailableTests] = React.useState([]);
+  const [selectedTest, setSelectedTest] = React.useState("");
 
-  const handleTestSelection = useCallback(async (testName) => {
+  const handleTestSelection = React.useCallback(async (testName) => {
     setSelectedTest(testName);
     setSelectedTemplateId(""); // Reset template selection
     const templateData = await ReportTemplate.filter({ test_type: testName });
     setTemplates(templateData);
   }, []); // State setters (setSelectedTest, setSelectedTemplateId, setTemplates) are stable, so no dependencies needed.
 
-  const loadData = useCallback(
+  const loadData = React.useCallback(
     async (id) => {
       setIsLoading(true);
       const assessmentData = await Assessment.filter({ id }, null, 1);

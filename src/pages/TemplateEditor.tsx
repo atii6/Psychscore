@@ -12,7 +12,7 @@ import PreviewModal from "../components/templates/PreviewModal";
 import useGetReportTemplateByID from "@/hooks/report-templates/useGetReportTemplateById";
 import QuillEditor from "@/components/shared/QuillEditor";
 import CustomContentCard from "@/components/shared/CustomContentCard";
-import { PlaceholdersType } from "@/utilitites/types/ReportTemplate";
+import type { PlaceholdersType } from "@/utilitites/types/ReportTemplate";
 import { toast } from "sonner";
 import useUpdateReportTemplate from "@/hooks/report-templates/useUpdateReportTemplate";
 

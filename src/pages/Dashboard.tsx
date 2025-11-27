@@ -1,11 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { FileText, Brain, Clock, CheckCircle2, Plus } from "lucide-react";
+import { FileText, Brain, Clock, CheckCircle2 } from "lucide-react";
 
 import useGetAllAssessments from "@/hooks/assessments/useGetAllAssessments";
 import useGetAllGeneratedReports from "@/hooks/generated-reports/useGetAllGeneratedReports";
-import { AssessmentType } from "@/utilitites/types/Assessment";
+import type { AssessmentType } from "@/utilitites/types/Assessment";
 import StatsCard from "@/components/dashboard/StatsCard";
 import RecentAssessments from "@/components/dashboard/RecentAssessments";
 import QuickActions from "@/components/dashboard/QuickActions";
