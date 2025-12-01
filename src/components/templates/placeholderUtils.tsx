@@ -1,9 +1,8 @@
-import { PlaceholdersType } from "@/utilitites/types/ReportTemplate";
-import * as lodash from "lodash";
-// import { TestSubtestDefinition } from '@/api/entities';
-// import { User } from '@/api/entities';
+import type { PlaceholdersType } from "@/utilitites/types/ReportTemplate";
+import { TestDefinitionType } from "@/utilitites/types/TestSubtestDefinitions";
+import { AppUserAttributes } from "@/utilitites/types/User";
 
-const getStandardPlaceholders = (testType) => {
+const getStandardPlaceholders = (testType: string) => {
   // Only common placeholders - no longer hardcoded test-specific ones
   const commonPlaceholders = [
     {
@@ -49,7 +48,7 @@ const getStandardPlaceholders = (testType) => {
   ];
 
   // Special conditional placeholders for specific tests
-  let conditionalPlaceholders = [];
+  let conditionalPlaceholders: PlaceholdersType[] = [];
   if (testType === "CVLT-3") {
     conditionalPlaceholders = [
       {
@@ -66,18 +65,18 @@ const getStandardPlaceholders = (testType) => {
 
 export const getAvailablePlaceholders = async (
   testType: string,
-  savedPlaceholders?: PlaceholdersType[]
+  savedPlaceholders?: PlaceholdersType[],
+  User?: AppUserAttributes,
+  TestSubtestDefinition?: TestDefinitionType[]
 ) => {
   console.log("Getting available placeholders for test type:", testType);
 
   const standardPlaceholders = getStandardPlaceholders(testType);
-  let testBankPlaceholders = [];
+  let testBankPlaceholders: PlaceholdersType[] = [];
 
   try {
-    const user = await User.me();
-
     // Find matching TestSubtestDefinition with more comprehensive matching
-    const normalizeTestName = (name) =>
+    const normalizeTestName = (name: string) =>
       (name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
     const normalizedTestType = normalizeTestName(testType);
 
@@ -89,9 +88,9 @@ export const getAvailablePlaceholders = async (
     );
 
     // Get all user's test definitions first
-    const allDefinitions = await TestSubtestDefinition.filter({
-      created_by: user.email,
-    });
+    const allDefinitions =
+      TestSubtestDefinition?.filter((def) => def.created_by === User?.email) ||
+      [];
     console.log(
       "Found user test definitions:",
       allDefinitions.map((d) => d.test_name)
@@ -173,53 +172,46 @@ export const getAvailablePlaceholders = async (
       if (matchedDefinition.subtests && matchedDefinition.subtests.length > 0) {
         console.log("Processing subtests for placeholders...");
 
-        testBankPlaceholders = matchedDefinition.subtests.reduce(
-          (acc, subtest, index) => {
-            console.log(`Processing subtest ${index + 1}:`, {
-              canonical_name: subtest.canonical_name,
-              display_name: subtest.display_name,
-              aliases: subtest.aliases,
-            });
+        testBankPlaceholders = matchedDefinition.subtests.reduce<
+          PlaceholdersType[]
+        >((acc, subtest, index) => {
+          const canonicalName = subtest.canonical_name;
+          const displayName = subtest.display_name;
 
-            const canonicalName = subtest.canonical_name;
-            const displayName = subtest.display_name;
+          if (canonicalName && canonicalName.trim()) {
+            const newPlaceholders: PlaceholdersType[] = [
+              {
+                placeholder: `{{${canonicalName}_score}}`,
+                description: `${displayName || canonicalName} Score`,
+                data_source: "scores",
+                testBank: true,
+              },
+              {
+                placeholder: `{{${canonicalName}_percentile}}`,
+                description: `${displayName || canonicalName} Percentile`,
+                data_source: "scores",
+                testBank: true,
+              },
+              {
+                placeholder: `{{${canonicalName}_descriptor}}`,
+                description: `${displayName || canonicalName} Descriptor`,
+                data_source: "scores",
+                testBank: true,
+              },
+            ];
 
-            if (canonicalName && canonicalName.trim()) {
-              const newPlaceholders = [
-                {
-                  placeholder: `{{${canonicalName}_score}}`,
-                  description: `${displayName || canonicalName} Score`,
-                  data_source: "scores",
-                  testBank: true,
-                },
-                {
-                  placeholder: `{{${canonicalName}_percentile}}`,
-                  description: `${displayName || canonicalName} Percentile`,
-                  data_source: "scores",
-                  testBank: true,
-                },
-                {
-                  placeholder: `{{${canonicalName}_descriptor}}`,
-                  description: `${displayName || canonicalName} Descriptor`,
-                  data_source: "scores",
-                  testBank: true,
-                },
-              ];
-
-              console.log(
-                `Generated ${newPlaceholders.length} placeholders for ${canonicalName}`
-              );
-              return acc.concat(newPlaceholders);
-            } else {
-              console.log(
-                `Skipping subtest ${index + 1} - no canonical_name:`,
-                subtest
-              );
-              return acc;
-            }
-          },
-          []
-        );
+            console.log(
+              `Generated ${newPlaceholders.length} placeholders for ${canonicalName}`
+            );
+            return [...acc, ...newPlaceholders];
+          } else {
+            console.log(
+              `Skipping subtest ${index + 1} - no canonical_name:`,
+              subtest
+            );
+            return acc;
+          }
+        }, []);
 
         console.log(
           "Total Test Bank placeholders generated:",
@@ -240,15 +232,14 @@ export const getAvailablePlaceholders = async (
   }
 
   // Return standard + Test Bank + saved placeholders with deduplication
-  const mergedPlaceholders = lodash.uniqBy(
-    [...standardPlaceholders, ...testBankPlaceholders, ...savedPlaceholders],
-    "placeholder"
-  );
-
-  console.log("Final merged placeholders count:", mergedPlaceholders.length);
-  console.log(
-    "Test Bank placeholders in final result:",
-    mergedPlaceholders.filter((p) => p.testBank).length
+  const mergedPlaceholders = Array.from(
+    new Map(
+      [
+        ...standardPlaceholders,
+        ...testBankPlaceholders,
+        ...(savedPlaceholders || []),
+      ].map((item) => [item.placeholder, item])
+    ).values()
   );
 
   return mergedPlaceholders;

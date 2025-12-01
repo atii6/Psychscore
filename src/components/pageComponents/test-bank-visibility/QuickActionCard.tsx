@@ -5,6 +5,7 @@ import useUpdateTestDefinition from "@/hooks/test-subtest-definitions/useUpdateT
 import type { TestDefinitionType } from "@/utilitites/types/TestSubtestDefinitions";
 import { toast } from "sonner";
 import { CheckCircle, Loader2 } from "lucide-react";
+import CustomAlertDialog from "@/components/shared/CustomAlertDialog";
 
 type Props = {
   testDefinitions: TestDefinitionType[];
@@ -15,14 +16,6 @@ function QuickActionCard({ testDefinitions, setChanges }: Props) {
   const { mutateAsync: updateTestDefinition, isPending: isSaving } =
     useUpdateTestDefinition();
   const handleSetAllTrue = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to make ALL test definitions visible to all users?"
-      )
-    ) {
-      return;
-    }
-
     try {
       for (const def of testDefinitions) {
         await updateTestDefinition({
@@ -47,18 +40,26 @@ function QuickActionCard({ testDefinitions, setChanges }: Props) {
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle>Quick Actions</CardTitle>
-          <Button
-            onClick={handleSetAllTrue}
-            disabled={isSaving}
-            className="bg-green-600 hover:bg-green-700 text-white"
-          >
-            {isSaving ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-              <CheckCircle className="w-4 h-4 mr-2" />
-            )}
-            Make All Global (Visible to Everyone)
-          </Button>
+          <CustomAlertDialog
+            trigger={
+              <Button
+                disabled={isSaving}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                )}
+                Make All Global (Visible to Everyone)
+              </Button>
+            }
+            title="Visible to Everyone?"
+            description="Are you sure you want to make ALL test definitions visible to all users?"
+            onAction={handleSetAllTrue}
+            actionButtonStyles="bg-green-600 hover:bg-green-700 text-white"
+            actionButtonText="Make All Global (Visible to Everyone)"
+          />
         </div>
       </CardHeader>
     </Card>

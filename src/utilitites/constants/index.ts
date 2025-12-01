@@ -87,3 +87,8 @@ export const SCORE_TYPE_OPTIONS = [
   { value: "standard", label: "Standard Score" },
   { value: "scaled", label: "Scaled Score" },
 ];
+
+export const USER_ROLES = {
+  ADMIN: "admin",
+  USER: "user",
+} as const;

@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trash2, Plus } from "lucide-react";
-import { ScoresType } from "@/pages/ManualEntry";
+import type { ScoresType } from "@/pages/ManualEntry";
 import {
   getDescriptorAndPercentile,
   getDescriptorFromPercentile,
@@ -60,7 +60,7 @@ export default function ManualScoreTable({
       // This prioritizes an existing percentile_rank value (whether manual or previously derived)
       // over re-calculating from composite_score.
       if (!scoreToUpdate.percentile_rank) {
-        const scoreValue = parseFloat(scoreToUpdate.composite_score);
+        const scoreValue = parseFloat(String(scoreToUpdate.composite_score));
         if (!isNaN(scoreValue)) {
           let descriptorInfo;
           if (scoreToUpdate.score_type === "standard") {
@@ -70,14 +70,13 @@ export default function ManualScoreTable({
           }
           if (descriptorInfo) {
             scoreToUpdate.descriptor = descriptorInfo.descriptor;
-            scoreToUpdate.percentile_rank =
-              descriptorInfo.percentile.toString();
+            scoreToUpdate.percentile_rank = Number(descriptorInfo.percentile);
           }
         } else {
           // If composite_score is cleared or invalid AND percentile_rank was also empty,
           // clear its derived descriptor and percentile_rank.
           scoreToUpdate.descriptor = "";
-          scoreToUpdate.percentile_rank = "";
+          scoreToUpdate.percentile_rank = 0;
         }
       }
     }
@@ -92,8 +91,8 @@ export default function ManualScoreTable({
       {
         subtest_name: "",
         score_type: "standard",
-        composite_score: "",
-        percentile_rank: "",
+        composite_score: 0,
+        percentile_rank: 0,
         descriptor: "",
       },
     ]);

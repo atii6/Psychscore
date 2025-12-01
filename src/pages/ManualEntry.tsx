@@ -1,9 +1,8 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { ArrowLeft, Save, AlertCircle } from "lucide-react";
+import { Save, AlertCircle } from "lucide-react";
 import Form from "@/components/form/Form";
 import { GridItem } from "@/components/ui/Grid";
 import z from "zod";
@@ -20,6 +19,7 @@ import {
 } from "@/utilitites/constants";
 import type { ScoreType } from "@/utilitites/types/TestSubtestDefinitions";
 import CreateAssessmentHeader from "@/components/pageComponents/manual-entry/CreateAssessmentHeader";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 
 export type ScoresType = {
   subtest_name: string;
@@ -77,6 +77,8 @@ export const assessmentInitialValues = {
 
 export default function ManualEntryPage() {
   const navigate = useNavigate();
+  const { data: User } = useGetLoggedInUser();
+
   const {
     mutateAsync: createAssessment,
     isPending,
@@ -105,6 +107,8 @@ export default function ManualEntryPage() {
       status: ASSESSMENT_STATUS.PROCESSED,
       is_active: true,
       is_sample: false,
+      created_by_id: User?.id,
+      created_by: User?.email,
     };
 
     await createAssessment({ assessment });

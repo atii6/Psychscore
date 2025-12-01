@@ -303,7 +303,7 @@ export function wrapFinalReport(
 export const generateScoreTable = async (
   scores: ExtractedScore[],
   testName: string,
-  userPreferences: ReturnType<typeof getUserPreferences>
+  userPreferences?: ReturnType<typeof getUserPreferences>
 ) => {
   const themes = {
     neutral_gray: { headerBg: "#f3f4f6", border: "#e5e7eb" },

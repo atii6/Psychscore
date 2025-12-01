@@ -1,171 +1,164 @@
 import React from "react";
-// import { Assessment, ReportTemplate, GeneratedReport } from "@/api/entities";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ArrowLeft, Loader2, FileText, BookOpen } from "lucide-react";
 import { format } from "date-fns";
+import useGetAllReportTemplates from "@/hooks/report-templates/useGetAllReportTemplates";
+import useGetAssessmentByID from "@/hooks/assessments/useGetAssessmentById";
+import {
+  addScorePlaceholders,
+  buildPlaceholderMap,
+  generateScoreTable,
+  renderTestTemplate,
+} from "@/utilitites/helpers/reportTemplateHelpers";
+import CustomContentCard from "@/components/shared/CustomContentCard";
+import useCreateGeneratedReport from "@/hooks/generated-reports/useCreateGeneratedReport";
+import Form from "@/components/form/Form";
+import { GridItem } from "@/components/ui/Grid";
+import FormSelectField, {
+  type SelectableFormOptions,
+} from "@/components/form/Fields/FormSelectField";
+import z from "zod";
+import FormButton from "@/components/form/Fields/FormButton";
+import { useFormContext } from "react-hook-form";
+
+const RenderFormFields = ({
+  testOptions,
+  templateOptions,
+  setSelectedTest,
+}: {
+  testOptions: SelectableFormOptions[];
+  templateOptions: SelectableFormOptions[];
+  setSelectedTest: React.Dispatch<React.SetStateAction<string>>;
+}) => {
+  const { watch } = useFormContext();
+  const selectedTest = watch("selected_test");
+
+  React.useEffect(() => {
+    setSelectedTest(selectedTest);
+  }, [selectedTest, setSelectedTest]);
+  return (
+    <>
+      {testOptions.length > 0 && (
+        <FormSelectField
+          name="selected_test"
+          label="Select Test for Report"
+          options={testOptions}
+        />
+      )}
+
+      <FormSelectField
+        name="selected_template"
+        label="Select Template"
+        options={templateOptions}
+        disabled={templateOptions.length === 0}
+      />
+    </>
+  );
+};
 
 export default function GenerateReportPage() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = urlParams.get("assessmentId");
+  const assessmentId = Number(id);
+
   const navigate = useNavigate();
-  const [assessment, setAssessment] = React.useState(null);
-  const [templates, setTemplates] = React.useState([]);
-  const [selectedTemplateId, setSelectedTemplateId] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isGenerating, setIsGenerating] = React.useState(false);
-  const [assessmentId, setAssessmentId] = React.useState("");
-  const [availableTests, setAvailableTests] = React.useState([]);
-  const [selectedTest, setSelectedTest] = React.useState("");
+  const { data: assessment, isLoading } = useGetAssessmentByID(assessmentId);
+  const { data: reportTemplates, isLoading: isLoadingTemplates } =
+    useGetAllReportTemplates();
+  const { mutateAsync: generateReport, isPending: isGenerating } =
+    useCreateGeneratedReport();
+  const [selectedTest, setSelectedTest] = React.useState<string>("");
 
-  const handleTestSelection = React.useCallback(async (testName) => {
-    setSelectedTest(testName);
-    setSelectedTemplateId(""); // Reset template selection
-    const templateData = await ReportTemplate.filter({ test_type: testName });
-    setTemplates(templateData);
-  }, []); // State setters (setSelectedTest, setSelectedTemplateId, setTemplates) are stable, so no dependencies needed.
+  const initialValues = { selected_test: "", selected_template: "" };
+  const validationSchema = z.object({
+    selected_test: z.string().min(1, "Test is required"),
+    selected_template: z.string().min(1, "Template is required"),
+  });
+  type ValidationSchemaType = z.infer<typeof validationSchema>;
 
-  const loadData = React.useCallback(
-    async (id) => {
-      setIsLoading(true);
-      const assessmentData = await Assessment.filter({ id }, null, 1);
-      if (assessmentData && assessmentData.length > 0) {
-        const currentAssessment = assessmentData[0];
-        setAssessment(currentAssessment);
-        const uniqueTests = [
-          ...new Set(
-            currentAssessment.extracted_scores.map((s) => s.test_name)
-          ),
-        ];
-        setAvailableTests(uniqueTests);
-        if (uniqueTests.length > 0) {
-          // Pre-select the first test and load its templates
-          handleTestSelection(uniqueTests[0]);
-        }
-      }
-      setIsLoading(false);
-    },
-    [handleTestSelection]
-  ); // handleTestSelection is a dependency because it's called inside loadData.
+  const testOptions = React.useMemo(() => {
+    const tests = [
+      ...new Set(assessment?.extracted_scores?.map((s) => s.test_name)),
+    ];
+    return tests.map((t) => ({ value: t, label: t }));
+  }, [assessment]);
 
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("assessmentId");
-    if (id) {
-      setAssessmentId(id);
-      loadData(id);
-    } else {
-      setIsLoading(false);
-    }
-  }, [loadData]); // loadData is a dependency because it's called inside useEffect.
-
-  const generateScoreTable = (scores, testName) => {
-    let tableHtml = `
-      <style>
-        .score-table { border-collapse: collapse; width: 100%; font-family: sans-serif; margin-bottom: 20px; }
-        .score-table th, .score-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        .score-table th { background-color: #f2f2f2; }
-        .score-table-caption { caption-side: top; text-align: center; font-weight: bold; font-size: 1.2em; margin-bottom: 10px; }
-      </style>
-      <table class="score-table">
-        <caption class="score-table-caption">${testName}</caption>
-        <thead>
-          <tr>
-            <th>Subtest/Index</th>
-            <th>Score</th>
-            <th>Percentile Rank</th>
-            <th>Descriptor</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
-    scores.forEach((score) => {
-      tableHtml += `
-        <tr>
-          <td>${score.subtest_name || ""}</td>
-          <td>${score.scaled_score || score.composite_score || ""}</td>
-          <td>${score.percentile_rank || ""}</td>
-          <td>${score.descriptor || ""}</td>
-        </tr>
-      `;
-    });
-    tableHtml += `</tbody></table>`;
-    return tableHtml;
-  };
-
-  const handleGenerateReport = async () => {
-    if (!assessment || !selectedTemplateId || !selectedTest) return;
-
-    setIsGenerating(true);
-    const selectedTemplate = templates.find((t) => t.id === selectedTemplateId);
-    if (!selectedTemplate) {
-      setIsGenerating(false);
-      return;
-    }
-
-    // Filter scores for the selected test only
-    const scoresForReport = assessment.extracted_scores.filter(
-      (s) => s.test_name === selectedTest
+  const templates = React.useMemo(() => {
+    if (!selectedTest) return [];
+    return (
+      reportTemplates?.filter((t) => t.template_name === selectedTest) || []
     );
+  }, [selectedTest, reportTemplates]);
 
-    // 1. Generate score table
-    const scoreTableHtml = generateScoreTable(scoresForReport, selectedTest);
+  const templateOptions = React.useMemo(() => {
+    return (
+      templates?.map((t) => ({
+        value: String(t.id),
+        label: t.template_name,
+      })) || []
+    );
+  }, [selectedTest, reportTemplates]);
 
-    // 2. Create placeholder map
-    const placeholderMap = {
-      "{{client_first_name}}": assessment.client_first_name,
-      "{{client_last_name}}": assessment.client_last_name,
-      "{{subjective_pronoun}}": assessment.subjective_pronoun,
-      "{{objective_pronoun}}": assessment.objective_pronoun,
-      "{{possessive_pronoun}}": assessment.possessive_pronoun,
-      "{{test_name}}": selectedTest,
-      "{{test_date}}": format(
-        new Date(assessment.test_date || Date.now()),
-        "MMMM d, yyyy"
-      ),
-      "{{score_table}}": scoreTableHtml,
-    };
-    scoresForReport.forEach((score) => {
-      const name = score.subtest_name.toLowerCase().replace(/ /g, "_");
-      placeholderMap[`{{${name}_score}}`] =
-        score.scaled_score || score.composite_score;
-      placeholderMap[`{{${name}_percentile}}`] = score.percentile_rank;
-      placeholderMap[`{{${name}_descriptor}}`] = score.descriptor;
-    });
+  const handleGenerateReport = async (values: ValidationSchemaType) => {
+    if (!assessment) return;
 
-    // 3. Replace placeholders in template content
-    let finalContent = selectedTemplate.template_content;
-    for (const [key, value] of Object.entries(placeholderMap)) {
-      finalContent = finalContent.replaceAll(key, value);
-    }
+    const selectedTest = values.selected_test;
+    const selectedTemplateId = Number(values.selected_template);
 
-    // 4. Create GeneratedReport record
+    if (!selectedTest || !selectedTemplateId) return;
+
     try {
-      const report = await GeneratedReport.create({
+      const selectedTemplate = reportTemplates?.find(
+        (t) => t.id === selectedTemplateId
+      );
+
+      if (!selectedTemplate?.template_content?.trim()) {
+        return;
+      }
+
+      const scoresForTest =
+        assessment.extracted_scores?.filter(
+          (s) => s.test_name === selectedTest
+        ) || [];
+
+      const scoreTableHtml = await generateScoreTable(
+        scoresForTest,
+        selectedTest
+      );
+
+      let placeholderMap = buildPlaceholderMap(
+        assessment,
+        selectedTest,
+        scoreTableHtml
+      );
+
+      placeholderMap = addScorePlaceholders(scoresForTest, placeholderMap);
+
+      const finalContent = renderTestTemplate(
+        selectedTemplate.template_content,
+        placeholderMap
+      );
+
+      const reportData = {
         assessment_id: assessment.id,
         template_id: selectedTemplate.id,
         report_content: finalContent,
         report_title: `Psychological Report for ${assessment.client_first_name} ${assessment.client_last_name}`,
         client_name: `${assessment.client_first_name} ${assessment.client_last_name}`,
-      });
+      };
 
-      // 5. Navigate to view page
+      const report = await generateReport({ reportData });
+
       navigate(createPageUrl(`ViewReport?id=${report.id}`));
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error("Report generation error:", error);
     }
-
-    setIsGenerating(false);
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingTemplates) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2
@@ -204,132 +197,90 @@ export default function GenerateReportPage() {
           </div>
         </div>
 
-        <Card
-          className="border-0 shadow-lg rounded-2xl mb-6"
-          style={{ backgroundColor: "var(--card-background)" }}
+        <CustomContentCard
+          title="Assessment Details"
+          Icon={FileText}
+          iconProps={{ className: "w-5 h-5 text-[var(--secondary-blue)]" }}
+          cardStyles="mb-6"
+          contentContainerStyles="text-[var(--text-primary)]"
         >
-          <CardHeader>
-            <CardTitle
-              className="flex items-center gap-2"
-              style={{ color: "var(--text-primary)" }}
-            >
-              {/* Fix: Added missing closing curly brace for the style prop */}
-              <FileText
-                className="w-5 h-5"
-                style={{ color: "var(--secondary-blue)" }}
-              />
-              Assessment Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <p>
-              <strong style={{ color: "var(--text-primary)" }}>Client:</strong>{" "}
-              {assessment?.client_first_name} {assessment?.client_last_name}
-            </p>
-            <p>
-              <strong style={{ color: "var(--text-primary)" }}>
-                Test Date:
-              </strong>{" "}
-              {assessment?.test_date
-                ? format(new Date(assessment.test_date), "MMMM d, yyyy")
-                : "N/A"}
-            </p>
-          </CardContent>
-        </Card>
+          <p>
+            <strong>Client:</strong> {assessment?.client_first_name}{" "}
+            {assessment?.client_last_name}
+          </p>
+          <p>
+            <strong>Test Date:</strong>{" "}
+            {assessment?.test_date
+              ? format(new Date(assessment.test_date), "MMMM d, yyyy")
+              : "N/A"}
+          </p>
+        </CustomContentCard>
 
-        <Card
-          className="border-0 shadow-lg rounded-2xl"
-          style={{ backgroundColor: "var(--card-background)" }}
+        <Form
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleGenerateReport}
         >
-          <CardHeader>
-            <CardTitle
-              className="flex items-center gap-2"
-              style={{ color: "var(--text-primary)" }}
+          <GridItem>
+            <Card
+              className="border-0 shadow-lg rounded-2xl"
+              style={{ backgroundColor: "var(--card-background)" }}
             >
-              <BookOpen
-                className="w-5 h-5"
-                style={{ color: "var(--secondary-blue)" }}
-              />
-              Select Report Template
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {availableTests.length > 1 && (
-              <div className="space-y-2">
-                <label className="font-medium">Select Test for Report</label>
-                <Select
-                  onValueChange={handleTestSelection}
-                  value={selectedTest}
+              <CardHeader>
+                <CardTitle
+                  className="flex items-center gap-2"
+                  style={{ color: "var(--text-primary)" }}
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose a test..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableTests.map((test) => (
-                      <SelectItem key={test} value={test}>
-                        {test}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label className="font-medium">Select Template</label>
-              <Select
-                onValueChange={setSelectedTemplateId}
-                value={selectedTemplateId}
-                disabled={!selectedTest}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choose a template..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {templates.map((template) => (
-                    <SelectItem key={template.id} value={template.id}>
-                      {template.template_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {selectedTest && templates.length === 0 && (
-              <p
-                className="text-center text-sm"
-                style={{ color: "var(--text-secondary)" }}
-              >
-                No templates found for "{selectedTest}".
-                <a
-                  href={createPageUrl("Templates")}
-                  className="text-blue-600 font-medium"
-                >
-                  {" "}
-                  Create one here.
-                </a>
-              </p>
-            )}
-            <div className="flex justify-end">
-              <Button
-                onClick={handleGenerateReport}
-                disabled={!selectedTemplateId || isGenerating}
-                className="px-8 py-3 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--primary-blue), var(--secondary-blue))",
-                }}
-              >
-                {isGenerating ? (
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                ) : (
-                  <FileText className="w-5 h-5 mr-2" />
+                  <BookOpen
+                    className="w-5 h-5"
+                    style={{ color: "var(--secondary-blue)" }}
+                  />
+                  Select Report Template
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Test Dropdown */}
+                <RenderFormFields
+                  templateOptions={templateOptions}
+                  testOptions={testOptions}
+                  setSelectedTest={setSelectedTest}
+                />
+                {/* No templates found */}
+                {selectedTest && templates.length === 0 && (
+                  <p
+                    className="text-center text-sm"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
+                    No templates found for "{selectedTest}".{" "}
+                    <a
+                      href={createPageUrl("Templates")}
+                      className="text-blue-600 font-medium"
+                    >
+                      Create one here.
+                    </a>
+                  </p>
                 )}
-                {isGenerating ? "Generating..." : "Generate & View Report"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                <div className="flex justify-end">
+                  <FormButton
+                    disabled={isGenerating}
+                    className="px-8 py-3 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, var(--primary-blue), var(--secondary-blue))",
+                    }}
+                  >
+                    {isGenerating ? (
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    ) : (
+                      <FileText className="w-5 h-5 mr-2" />
+                    )}
+                    {isGenerating ? "Generating..." : "Generate & View Report"}
+                  </FormButton>
+                </div>
+              </CardContent>
+            </Card>
+          </GridItem>
+        </Form>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import {
 } from "./common";
 import { UserScoreDescriptorType } from "../types/UserScoreDescriptor";
 import { normalizeSubtest } from "./descriptorEvaluationHelpers";
+import { AppUserAttributes } from "../types/User";
 
 export const cleanString = (str: string) =>
   str
@@ -120,11 +121,13 @@ export const applyDescriptor = (
 
 export const mapScoresToCanonicalNames = (
   scores: ExtractedScore[],
-  TestSubtestDefinition: TestDefinitionType[]
+  TestSubtestDefinition: TestDefinitionType[],
+  User: AppUserAttributes | undefined
 ): ExtractedScore[] => {
   try {
     const allUserDefinitions =
-      TestSubtestDefinition?.filter((def) => !def.is_system_template) || [];
+      TestSubtestDefinition?.filter((def) => def.created_by === User?.email) ||
+      [];
     const allSystemDefinitions =
       TestSubtestDefinition?.filter((def) => def.is_system_template) || [];
 

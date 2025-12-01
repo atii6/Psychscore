@@ -9,6 +9,7 @@ import FormResetButton from "@/components/form/Fields/FormResetButton";
 import { Save, X } from "lucide-react";
 import FormButton from "@/components/form/Fields/FormButton";
 import useCreateTestDefinition from "@/hooks/test-subtest-definitions/useCreateTestDefinition";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 
 type Props = {
   activeTab: string;
@@ -22,6 +23,7 @@ function TestCreationForm({
   isEditingTest = false,
 }: Props) {
   const { mutateAsync: createTest, isPending } = useCreateTestDefinition();
+  const { data: user } = useGetLoggedInUser();
 
   const initialValues = {
     test_name: "",
@@ -49,6 +51,8 @@ function TestCreationForm({
       ...values,
       is_system_template: activeTab === "system",
       subtest_placeholders: values.subtests.map((s) => s.placeholder),
+      created_by: user?.email,
+      created_by_id: user?.id,
     };
 
     await createTest({ testDefData: testToCreate });

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { GeneratedReport } from "@/utilitites/types/GeneratedReports";
+import type { GeneratedReport } from "@/utilitites/types/GeneratedReports";
 import { Download } from "lucide-react";
 
 type Props = { reportData: GeneratedReport };

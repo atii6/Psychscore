@@ -86,9 +86,9 @@ const FormSelectField: React.FC<FormSelectFieldProps> = ({
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   <SelectGroup>
-                    {options.map((option) => (
+                    {options.map((option, index) => (
                       <SelectItem
-                        key={option.label}
+                        key={`${option.label}-${index}`}
                         value={String(option.value)}
                         className="hover:!text-[#385C80]"
                       >

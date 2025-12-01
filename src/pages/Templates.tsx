@@ -5,22 +5,31 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useGetAllReportTemplates from "@/hooks/report-templates/useGetAllReportTemplates";
-import type { ReportTemplateType } from "@/utilitites/types/ReportTemplate";
+import type {
+  PlaceholdersType,
+  ReportTemplateType,
+} from "@/utilitites/types/ReportTemplate";
 import { TEMPLATE_CATEGORY_LABELS } from "@/utilitites/constants";
 import CreateTemplateForm from "@/components/pageComponents/report-template/CreateTemplateForm";
 import TemplateCard from "@/components/pageComponents/report-template/TemplateCard";
 import { getAvailablePlaceholders } from "@/components/templates/placeholderUtils";
 import useCreateReportTemplate from "@/hooks/report-templates/useCreateReportTemplate";
 import PagesHeader from "@/components/shared/PagesHeader";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAllTestDefinitions";
 
 export default function TemplatesPage() {
   const { data: ReportTemplate, isLoading } = useGetAllReportTemplates();
   const { mutateAsync: createTemplate, isPending } = useCreateReportTemplate();
+  const { data: testDefinition } = useGetAllTestDefinitions();
   const [activeTab, setActiveTab] = React.useState("system");
   const [isCreating, setIsCreating] = React.useState(false);
   const [editingId, setEditingId] = React.useState<number | null>(null);
+  const { data: user } = useGetLoggedInUser();
   const systemTempsFlat = ReportTemplate?.filter((t) => t.is_system_template);
-  const userTempsFlat = ReportTemplate?.filter((t) => !t.is_system_template);
+  const userTempsFlat = ReportTemplate?.filter(
+    (t) => t.created_by === user?.email
+  );
 
   const groupByCategory = (templates: ReportTemplateType[]) => {
     return templates.reduce(
@@ -56,7 +65,9 @@ export default function TemplatesPage() {
   const handleOverride = async (systemTemplate: ReportTemplateType) => {
     const placeholders = await getAvailablePlaceholders(
       systemTemplate.test_type,
-      systemTemplate.available_placeholders || []
+      systemTemplate.available_placeholders || [],
+      user,
+      testDefinition
     );
 
     const template = {
@@ -65,10 +76,12 @@ export default function TemplatesPage() {
       category: systemTemplate.category,
       template_content: systemTemplate.template_content || "",
       is_system_template: false,
-      available_placeholders: placeholders,
+      available_placeholders: placeholders as PlaceholdersType[],
       is_active: true,
       is_sample: false,
       is_active_template: true,
+      created_by: user?.email,
+      created_by_id: user?.id,
     };
 
     await createTemplate({
@@ -81,6 +94,7 @@ export default function TemplatesPage() {
     <>
       {editingId === template.id ? (
         <CreateTemplateForm
+          key={template.id}
           template={template}
           mainContainerStyles={`border-0 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-200 flex flex-col ${
             editingId && editingId !== template.id ? "opacity-50" : ""
@@ -93,6 +107,7 @@ export default function TemplatesPage() {
         />
       ) : (
         <TemplateCard
+          key={template.id}
           editingId={editingId}
           template={template}
           onCopy={() => handleOverride(template)}
@@ -153,9 +168,9 @@ export default function TemplatesPage() {
             {systemTemps ? (
               Object.entries(systemTemps)
                 .sort(([catA], [catB]) => catA.localeCompare(catB))
-                .map(([category, templates]) => (
+                .map(([category, templates], index) => (
                   <Card
-                    key={category}
+                    key={index}
                     className="border-0 shadow-lg rounded-2xl"
                     style={{ backgroundColor: "var(--card-background)" }}
                   >
@@ -191,7 +206,7 @@ export default function TemplatesPage() {
                         </Badge>
                       </div>
                     </CardHeader>
-                    {true && (
+                    {expandedCategories.has(category) && (
                       <CardContent>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {templates.map((template) =>
@@ -230,9 +245,9 @@ export default function TemplatesPage() {
             {userTemps ? (
               Object.entries(userTemps)
                 .sort(([catA], [catB]) => catA.localeCompare(catB))
-                .map(([category, templates]) => (
+                .map(([category, templates], index) => (
                   <Card
-                    key={category}
+                    key={index}
                     className="border-0 shadow-lg rounded-2xl"
                     style={{ backgroundColor: "var(--card-background)" }}
                   >

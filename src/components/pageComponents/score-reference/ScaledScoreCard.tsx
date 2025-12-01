@@ -6,9 +6,7 @@ import {
 } from "@/utilitites/constants/scoreReferenceConstants";
 import { BarChart3 } from "lucide-react";
 
-type Props = {};
-
-function ScaledScoreCard({}: Props) {
+function ScaledScoreCard() {
   return (
     <Card
       className="border-0 shadow-lg rounded-2xl"

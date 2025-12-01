@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { User } from "@/api/entities";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -30,26 +29,29 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import {
   CreditCard,
-  Calendar,
   User as UserIcon,
   Crown,
-  FileText,
   HardDrive,
-  Mail,
-  Phone,
-  MapPin,
   Edit,
   Save,
   X,
-  ExternalLink,
   Download,
   HelpCircle,
   Palette,
   Type,
   FileText as HeaderIcon,
-  FileImage,
+  LogOut,
 } from "lucide-react";
 import { format } from "date-fns";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useUpdateUser from "@/hooks/users/useUpdateUser";
+import {
+  ReportFontFamily,
+  ReportTableThemeColor,
+  UserRole,
+} from "@/utilitites/types/User";
+import useLogout from "@/hooks/auth/useLogout";
+import { useAuth } from "@/context/AuthContext";
 
 type AccountSettingsModalProps = {
   isOpen: boolean;
@@ -60,15 +62,19 @@ export default function AccountSettingsModal({
   isOpen,
   onClose,
 }: AccountSettingsModalProps) {
-  const [user, setUser] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({
-    full_name: "",
-    phone: "",
-    license_number: "",
-    practice_name: "",
+  const { data: user } = useGetLoggedInUser();
+  const { mutateAsync: updateUser } = useUpdateUser();
+  const { mutateAsync: logout } = useLogout();
+  const { setLoggedIn } = useAuth();
+
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editData, setEditData] = React.useState({
+    full_name: user?.full_name || "",
+    phone: user?.phone || "",
+    license_number: user?.license_number || "",
+    practice_name: user?.practice_name || "",
   });
-  const [reportSettings, setReportSettings] = useState({
+  const [reportSettings, setReportSettings] = React.useState({
     report_table_theme_color: "neutral_gray",
     report_table_show_title: true,
     report_header_content: "",
@@ -76,41 +82,41 @@ export default function AccountSettingsModal({
     report_font_family: "Times New Roman",
   });
 
-  useEffect(() => {
-    if (isOpen) {
-      loadUserData();
-    }
-  }, [isOpen]);
-
-  const loadUserData = async () => {
-    const userData = await User.me();
-    setUser(userData);
-    setEditData({
-      full_name: userData.full_name || "",
-      phone: userData.phone || "",
-      license_number: userData.license_number || "",
-      practice_name: userData.practice_name || "",
-    });
-    setReportSettings({
-      report_table_theme_color:
-        userData.report_table_theme_color || "neutral_gray",
-      report_table_show_title: userData.report_table_show_title !== false,
-      report_header_content: userData.report_header_content || "",
-      report_footer_content: userData.report_footer_content || "",
-      report_font_family: userData.report_font_family || "Times New Roman",
-    });
+  const handleLogout = async () => {
+    await logout();
+    setLoggedIn(false);
   };
 
   const handleSaveProfile = async () => {
-    await User.updateMyUserData(editData);
-    setUser((prev) => ({ ...prev, ...editData }));
+    const userData = {
+      ...user,
+      ...editData,
+      id: user?.id || 0,
+      role: user?.role as UserRole,
+      email: user?.email || "",
+    };
+    await updateUser({
+      id: user?.id || 0,
+      userData,
+    });
     setIsEditing(false);
   };
 
   const handleSaveReportSettings = async () => {
-    await User.updateMyUserData(reportSettings);
-    setUser((prev) => ({ ...prev, ...reportSettings }));
-    // Consider adding a success toast notification here
+    if (user) {
+      const userData = {
+        ...user,
+        ...reportSettings,
+        report_table_theme_color:
+          reportSettings.report_table_theme_color as ReportTableThemeColor,
+        report_font_family:
+          reportSettings.report_font_family as ReportFontFamily,
+      };
+      await updateUser({
+        id: user?.id || 0,
+        userData,
+      });
+    }
   };
 
   const subscriptionData = {
@@ -316,7 +322,10 @@ export default function AccountSettingsModal({
                   <div>
                     <Label className="text-gray-500">Member Since</Label>
                     <p className="font-medium">
-                      {format(new Date(user.created_date), "MMMM d, yyyy")}
+                      {format(
+                        new Date(user.created_date || ""),
+                        "MMMM d, yyyy"
+                      )}
                     </p>
                   </div>
                 </div>
@@ -848,15 +857,19 @@ export default function AccountSettingsModal({
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-end pt-6 border-t border-gray-100">
+        <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
           <Button variant="outline" onClick={onClose} className="px-6">
             <X className="w-4 h-4 mr-2" />
             Close
           </Button>
+          <Button variant="outline" onClick={handleLogout} className="px-6">
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
+          </Button>
         </div>
       </DialogContent>
 
-      <style jsx global>{`
+      <style>{`
         .header-editor .ql-editor,
         .footer-editor .ql-editor {
           min-height: 120px;

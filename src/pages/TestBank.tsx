@@ -10,11 +10,13 @@ import TestCreationForm from "@/components/pageComponents/test-bank/TestCreation
 import CustomContentCard from "@/components/shared/CustomContentCard";
 import TestDetailCard from "@/components/pageComponents/test-bank/TestDetailCard";
 import PagesHeader from "@/components/shared/PagesHeader";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 
 export default function TestBankPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [activeTab, setActiveTab] = React.useState("system");
   const [isCreating, setIsCreating] = React.useState(false);
+  const { data: User } = useGetLoggedInUser();
 
   const { data: TestSubtestDefinition, isLoading } = useGetAllTestDefinitions();
   const systemDefinitions = React.useMemo(
@@ -22,7 +24,7 @@ export default function TestBankPage() {
     [TestSubtestDefinition]
   );
   const myDefinitions = React.useMemo(
-    () => TestSubtestDefinition?.filter((d) => !d.is_system_template),
+    () => TestSubtestDefinition?.filter((d) => d.created_by === User?.email),
     [TestSubtestDefinition]
   );
 

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, FileText, ImageIcon, Camera, Loader2 } from "lucide-react";
@@ -19,7 +19,7 @@ export default function FileUploadZone({
 
   const disabled = !client_first_name.trim() || !client_last_name.trim();
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;

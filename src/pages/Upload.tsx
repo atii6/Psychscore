@@ -53,6 +53,7 @@ import {
 import type { ScoreType } from "@/utilitites/types/TestSubtestDefinitions";
 import useRemoveFile from "@/hooks/files/UseRemoveFile";
 import FormButton from "@/components/form/Fields/FormButton";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 
 export default function UploadPage() {
   const {
@@ -67,6 +68,7 @@ export default function UploadPage() {
   const { mutateAsync: updateTestDefinition } = useUpdateTestDefinition();
   const { mutateAsync: createTestDefinition } = useCreateTestDefinition();
   const { mutateAsync: removeUploadedFile } = useRemoveFile();
+  const { data: User } = useGetLoggedInUser();
   const navigate = useNavigate();
 
   const [uploadedFiles, setUploadedFiles] = React.useState<UploadFileType[]>(
@@ -138,7 +140,7 @@ export default function UploadPage() {
 
           // Template matching
           const personalTemplates = ReportTemplate?.filter(
-            (t) => !t.is_system_template
+            (t) => t.created_by === User?.email
           );
           const systemTemplates = ReportTemplate?.filter(
             (t) => t.is_system_template
@@ -168,7 +170,8 @@ export default function UploadPage() {
     // Map to canonical names & apply descriptors
     const mappedScores = mapScoresToCanonicalNames(
       extractedTest,
-      TestSubtestDefinition || []
+      TestSubtestDefinition || [],
+      User
     );
 
     const finalScores = mappedScores.map((score) => {
@@ -201,7 +204,7 @@ export default function UploadPage() {
         const normalizedUploadName = normalizeForMatching(testName);
 
         const allUserDefinitions = TestSubtestDefinition?.filter(
-          (d) => !d.is_system_template
+          (d) => d.created_by === User?.email
         );
 
         let matchedDefinition = allUserDefinitions?.find((def) => {
@@ -241,7 +244,8 @@ export default function UploadPage() {
             test_name: testName,
             test_aliases: [testName],
             subtests: initialSubtests,
-            created_by: "",
+            created_by: User?.email,
+            created_by_id: User?.id,
             subtest_placeholders: [],
           },
         });
@@ -262,6 +266,8 @@ export default function UploadPage() {
       status: ASSESSMENT_STATUS.PROCESSED,
       is_active: true,
       is_sample: false,
+      created_by_id: User?.id,
+      created_by: User?.email,
     };
 
     try {

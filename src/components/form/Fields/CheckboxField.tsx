@@ -5,7 +5,7 @@ import { GridItem } from "@/components/ui/Grid";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { GridItemProps } from "@/components/ui/Grid/GridItem";
 import { Label } from "@/components/ui/label";
-import { SelectableFormOptions } from "./FormSelectField";
+import type { SelectableFormOptions } from "./FormSelectField";
 
 type CheckboxFieldProps = {
   name: string;

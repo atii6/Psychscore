@@ -50,7 +50,7 @@ export type AssessmentType = {
   rater2_last_name?: string;
   rater2_suffix?: string;
 
-  created_by_id?: string;
+  created_by_id?: number;
   created_by?: string;
   is_sample: boolean;
 

@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Brain } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = {

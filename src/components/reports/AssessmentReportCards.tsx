@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import useCreateGeneratedReport from "@/hooks/generated-reports/useCreateGeneratedReport";
 import useUpdateAssessment from "@/hooks/assessments/useUpdateAssessment";
 import { toast } from "sonner";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 
 type Props = {
   assessment: AssessmentType;
@@ -45,6 +46,7 @@ function AssessmentReportCards({
 }: Props) {
   const { data: ReportTemplate } = useGetAllReportTemplates();
   const { data: TestSubtestDefinition } = useGetAllTestDefinitions();
+  const { data: User } = useGetLoggedInUser();
   const { mutateAsync: updateAssessment, isPending: isUpdatingAssessment } =
     useUpdateAssessment();
   const { mutateAsync: createReport, isPending: isCreatingReport } =
@@ -53,7 +55,7 @@ function AssessmentReportCards({
   const navigate = useNavigate();
 
   const userTemplates = React.useMemo(
-    () => ReportTemplate?.filter((t) => !t.is_system_template) ?? [],
+    () => ReportTemplate?.filter((t) => t.created_by === User?.email) ?? [],
     [ReportTemplate]
   );
 
@@ -64,7 +66,7 @@ function AssessmentReportCards({
 
   const allTestDefinitions = React.useMemo(() => {
     const user =
-      TestSubtestDefinition?.filter((t) => !t.is_system_template) ?? [];
+      TestSubtestDefinition?.filter((t) => t.created_by === User?.email) ?? [];
     const sys =
       TestSubtestDefinition?.filter((t) => t.is_system_template) ?? [];
 

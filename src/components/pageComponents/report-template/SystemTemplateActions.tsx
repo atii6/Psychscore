@@ -1,6 +1,6 @@
 import CustomAlertDialog from "@/components/shared/CustomAlertDialog";
 import { Button } from "@/components/ui/button";
-import { ReportTemplateType } from "@/utilitites/types/ReportTemplate";
+import type { ReportTemplateType } from "@/utilitites/types/ReportTemplate";
 import { createPageUrl } from "@/utils";
 import { BookOpen, Copy } from "lucide-react";
 import { Link } from "react-router-dom";

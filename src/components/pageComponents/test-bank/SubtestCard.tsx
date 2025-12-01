@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { SubtestType } from "@/utilitites/types/TestSubtestDefinitions";
+import type { SubtestType } from "@/utilitites/types/TestSubtestDefinitions";
 
 type Props = { subtest: SubtestType };
 

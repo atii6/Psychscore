@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { GridItemProps } from "@/components/ui/Grid/GridItem";
 import { useFormContext } from "react-hook-form";
 

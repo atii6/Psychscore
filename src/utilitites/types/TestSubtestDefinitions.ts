@@ -14,6 +14,6 @@ export type TestDefinitionType = {
   subtests: SubtestType[];
   subtest_placeholders: string[];
   is_system_template?: boolean;
-  created_by_id?: string;
+  created_by_id?: number;
   created_by?: string;
 };

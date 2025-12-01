@@ -1,26 +1,38 @@
-import React, { useState } from "react";
-// import { TestSubtestDefinition, User } from "@/api/entities";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAllTestDefinitions";
+import useUpdateTestDefinition from "@/hooks/test-subtest-definitions/useUpdateTestDefinition";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 
+type ResultType = {
+  success: boolean;
+  message: string;
+  count?: number;
+  definitions?: string[];
+};
 export default function BulkUpdateTestBankPage() {
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = React.useState<ResultType | null>(null);
+  const { data: User } = useGetLoggedInUser();
+
+  const {
+    data: testDefinitions = [],
+    isLoading,
+    isError,
+  } = useGetAllTestDefinitions();
+
+  const { mutateAsync: updateTestDefinition, isPending: isUpdating } =
+    useUpdateTestDefinition();
 
   const handleBulkUpdate = async () => {
-    setIsUpdating(true);
     setResult(null);
 
     try {
-      // Get current user
-      const user = await User.me();
-
-      // Get all test definitions created by current user
-      const myDefinitions = await TestSubtestDefinition.filter({
-        created_by: user.email,
-      });
+      const myDefinitions = testDefinitions.filter(
+        (test) => test.created_by === User?.email
+      );
 
       if (myDefinitions.length === 0) {
         setResult({
@@ -28,16 +40,15 @@ export default function BulkUpdateTestBankPage() {
           message: "No test definitions found that were created by you.",
           count: 0,
         });
-        setIsUpdating(false);
         return;
       }
 
-      // Update each one to set is_system_template to true
       let updatedCount = 0;
+
       for (const def of myDefinitions) {
-        await TestSubtestDefinition.update(def.id, {
-          ...def,
-          is_system_template: true,
+        await updateTestDefinition({
+          id: def.id,
+          testDefData: { ...def, is_system_template: true }, // Only update what backend expects
         });
         updatedCount++;
       }
@@ -49,14 +60,13 @@ export default function BulkUpdateTestBankPage() {
         definitions: myDefinitions.map((d) => d.test_name),
       });
     } catch (error) {
-      console.error("Error updating test definitions:", error);
       setResult({
         success: false,
-        message: `Failed to update test definitions: ${error.message}`,
+        message: `Failed to update test definitions: ${
+          error ?? "Unknown error"
+        }`,
       });
     }
-
-    setIsUpdating(false);
   };
 
   return (
@@ -74,7 +84,28 @@ export default function BulkUpdateTestBankPage() {
               Bulk Update Test Bank Definitions
             </CardTitle>
           </CardHeader>
+
           <CardContent className="space-y-6">
+            {/* Loading State */}
+            {isLoading && (
+              <Alert className="bg-blue-50 border-blue-200">
+                <AlertDescription className="text-blue-800">
+                  Loading test definitions...
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Error State */}
+            {isError && (
+              <Alert className="bg-red-50 border-red-200">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+                <AlertDescription className="text-red-800">
+                  Failed to load test definitions. Please refresh.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Info */}
             <div>
               <p className="mb-4" style={{ color: "var(--text-secondary)" }}>
                 This utility will update all TestSubtestDefinition records
@@ -86,6 +117,7 @@ export default function BulkUpdateTestBankPage() {
                 <code className="px-2 py-1 bg-gray-100 rounded">true</code>,
                 making them visible to all users.
               </p>
+
               <Alert className="bg-blue-50 border-blue-200">
                 <AlertCircle className="h-4 w-4 text-blue-600" />
                 <AlertDescription className="text-blue-800">
@@ -95,6 +127,7 @@ export default function BulkUpdateTestBankPage() {
               </Alert>
             </div>
 
+            {/* Result */}
             {result && (
               <Alert
                 className={
@@ -108,16 +141,19 @@ export default function BulkUpdateTestBankPage() {
                 ) : (
                   <AlertCircle className="h-4 w-4 text-red-600" />
                 )}
+
                 <AlertDescription
                   className={result.success ? "text-green-800" : "text-red-800"}
                 >
                   {result.message}
-                  {result.definitions && result.definitions.length > 0 && (
+
+                  {result.definitions && result.definitions?.length > 0 && (
                     <div className="mt-2">
                       <strong>Updated definitions:</strong>
+
                       <ul className="list-disc list-inside mt-1">
-                        {result.definitions.map((name, idx) => (
-                          <li key={idx}>{name}</li>
+                        {result.definitions.map((name) => (
+                          <li key={name}>{name}</li>
                         ))}
                       </ul>
                     </div>
@@ -126,11 +162,12 @@ export default function BulkUpdateTestBankPage() {
               </Alert>
             )}
 
+            {/* Button */}
             <div className="flex justify-center">
               <Button
                 onClick={handleBulkUpdate}
-                disabled={isUpdating || (result && result.success)}
-                className="px-8 py-3 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                disabled={isUpdating || isLoading}
+                className="px-8 py-3 text-white font-medium rounded-xl shadow-lg hover:shadow-xl"
                 style={{
                   background:
                     "linear-gradient(135deg, var(--primary-blue), var(--secondary-blue))",
@@ -150,14 +187,15 @@ export default function BulkUpdateTestBankPage() {
               </Button>
             </div>
 
-            {result && result.success && (
+            {/* Next Steps */}
+            {result?.success && result.count && result.count > 0 && (
               <Alert className="bg-yellow-50 border-yellow-200">
                 <AlertCircle className="h-4 w-4 text-yellow-600" />
                 <AlertDescription className="text-yellow-800">
                   <strong>Next Steps:</strong>
                   <ol className="list-decimal list-inside mt-2 space-y-1">
                     <li>
-                      Go back to the Test Bank page and refresh to see your
+                      Go back to the Test Bank page and refresh to see updated
                       definitions
                     </li>
                     <li>You can safely delete this utility page now</li>

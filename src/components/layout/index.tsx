@@ -1,16 +1,18 @@
 import React from "react";
-import AccountSettingsModal from "@/components/account/AccountSettingsModal";
-import Sidebar from "./Sidebar";
-import NavigationMenu from "./NavigationMenu";
-import SidebarFooter from "./SidebarFooter";
+import PreAuthLayout from "./PreAuthLayout";
+import PostAuthLayout from "./PostAuthLayout";
+import { useAuth } from "@/context/AuthContext";
 
 type LayoutProps = {
   children: React.ReactNode;
 };
 
 export default function Layout({ children }: LayoutProps) {
-  const [showAccountSettings, setShowAccountSettings] =
-    React.useState<boolean>(false);
+  const { isLoggedIn } = useAuth();
+
+  if (!isLoggedIn) {
+    return <PreAuthLayout>{children}</PreAuthLayout>;
+  }
 
   return (
     <>
@@ -26,31 +28,8 @@ export default function Layout({ children }: LayoutProps) {
           --card-background: #ffffff;
         }
       `}</style>
-      <div
-        className="min-h-screen flex w-full"
-        style={{ backgroundColor: "var(--background)" }}
-      >
-        {/* Always Visible Sidebar */}
-        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-          {/* Sidebar Header */}
-          <Sidebar />
 
-          {/* Navigation Menu */}
-          <NavigationMenu />
-
-          {/* Sidebar Footer */}
-          <SidebarFooter setShowAccountSettings={setShowAccountSettings} />
-        </div>
-
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto">{children}</main>
-      </div>
-
-      {/* Account Settings Modal */}
-      <AccountSettingsModal
-        isOpen={showAccountSettings}
-        onClose={() => setShowAccountSettings(false)}
-      />
+      <PostAuthLayout>{children}</PostAuthLayout>
     </>
   );
 }

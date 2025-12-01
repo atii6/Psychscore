@@ -4,9 +4,12 @@ import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAll
 import ManageTestVisibilityCard from "@/components/pageComponents/test-bank-visibility/ManageTestVisibilityCard";
 import QuickActionCard from "@/components/pageComponents/test-bank-visibility/QuickActionCard";
 import UnsavedChangesCard from "@/components/pageComponents/test-bank-visibility/UnsavedChangesCard";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import { USER_ROLES } from "@/utilitites/constants";
 
 export default function ManageTestBankVisibility() {
   const [changes, setChanges] = React.useState<Record<string, boolean>>({});
+  const { data: user, isLoading: isLoadingUser } = useGetLoggedInUser();
   const { data: testDefinitions = [], isLoading } = useGetAllTestDefinitions();
   const isUserAdmin = true;
 
@@ -17,7 +20,7 @@ export default function ManageTestBankVisibility() {
     }));
   };
 
-  if (!isUserAdmin) {
+  if (user?.role !== USER_ROLES.ADMIN) {
     return (
       <div
         className="min-h-screen p-8"
@@ -69,7 +72,7 @@ export default function ManageTestBankVisibility() {
 
         <ManageTestVisibilityCard
           testDefinitions={testDefinitions}
-          isLoading={isLoading}
+          isLoading={isLoading || isLoadingUser}
           changes={changes}
           handleToggle={handleToggle}
         />

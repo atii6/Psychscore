@@ -6,10 +6,11 @@ import FormTextField from "@/components/form/Fields/FormTextField";
 import Form from "@/components/form/Form";
 import CustomContentCard from "@/components/shared/CustomContentCard";
 import { GridItem } from "@/components/ui/Grid";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 import useCreateScoreDescriptor from "@/hooks/user-score-descriptor/useCreateUserScoreDescriptor";
 import useUpdateScoreDescriptor from "@/hooks/user-score-descriptor/useUpdateUserScoreDescriptor";
 import { SCORE_TYPE_OPTIONS } from "@/utilitites/constants";
-import { ScoreType } from "@/utilitites/types/TestSubtestDefinitions";
+import type { ScoreType } from "@/utilitites/types/TestSubtestDefinitions";
 import type { UserScoreDescriptorType } from "@/utilitites/types/UserScoreDescriptor";
 import { Save, X } from "lucide-react";
 import z from "zod";
@@ -17,13 +18,15 @@ import z from "zod";
 type Props = {
   descriptor?: UserScoreDescriptorType | null;
   onCancel: () => void;
+  cardStyles?: string;
 };
 
-function ScoreDescriptorForm({ descriptor, onCancel }: Props) {
+function ScoreDescriptorForm({ descriptor, onCancel, cardStyles }: Props) {
   const {
     mutateAsync: updateScoreDescriptor,
     isPending: isUpdatingDescriptor,
   } = useUpdateScoreDescriptor();
+  const { data: User } = useGetLoggedInUser();
   const { mutateAsync: createScoreDescriptor, isPending: isCreatePending } =
     useCreateScoreDescriptor();
   const initialValues = {
@@ -53,6 +56,8 @@ function ScoreDescriptorForm({ descriptor, onCancel }: Props) {
       min_score: values.min_score,
       max_score: values.max_score,
       descriptor: values.descriptor,
+      created_by_id: User?.id,
+      created_by: User?.email,
     };
 
     if (descriptor) {
@@ -75,6 +80,7 @@ function ScoreDescriptorForm({ descriptor, onCancel }: Props) {
       title={
         descriptor ? "Edit Custom Descriptor" : "Add New Custom Descriptor"
       }
+      cardStyles={cardStyles}
     >
       <Form
         initialValues={initialValues}

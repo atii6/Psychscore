@@ -11,6 +11,7 @@ import FormResetButton from "@/components/form/Fields/FormResetButton";
 import { getAvailablePlaceholders } from "@/components/templates/placeholderUtils";
 import useCreateReportTemplate from "@/hooks/report-templates/useCreateReportTemplate";
 import type {
+  PlaceholdersType,
   ReportTemplateType,
   TemplateCategory,
 } from "@/utilitites/types/ReportTemplate";
@@ -18,6 +19,8 @@ import { createPageUrl } from "@/utils";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import useUpdateReportTemplate from "@/hooks/report-templates/useUpdateReportTemplate";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAllTestDefinitions";
 
 type Props = {
   template?: ReportTemplateType;
@@ -39,6 +42,8 @@ function CreateTemplateForm({
   onReset,
 }: Props) {
   const { mutateAsync: createTemplate, isPending } = useCreateReportTemplate();
+  const { data: testDefinitions } = useGetAllTestDefinitions();
+  const { data: user } = useGetLoggedInUser();
   const { mutateAsync: updateTemplate, isPending: updateLoading } =
     useUpdateReportTemplate();
   const navigate = useNavigate();
@@ -74,16 +79,23 @@ function CreateTemplateForm({
       return;
     }
 
-    const placeholders = await getAvailablePlaceholders(values.test_type);
+    const placeholders = await getAvailablePlaceholders(
+      values.test_type,
+      undefined,
+      user,
+      testDefinitions
+    );
     const templatePayload = {
       ...values,
       category,
       template_content: "New Template Content",
-      available_placeholders: placeholders,
+      available_placeholders: placeholders as PlaceholdersType[],
       is_system_template: false,
       is_active: true,
       is_sample: false,
       is_active_template: true,
+      created_by: user?.email,
+      created_by_id: user?.id,
     };
 
     const newTemplate = await createTemplate({ template: templatePayload });

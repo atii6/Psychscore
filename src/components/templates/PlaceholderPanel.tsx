@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import {
   Plus,
   Copy,
@@ -17,8 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { PlaceholdersType } from "@/utilitites/types/ReportTemplate";
-// import * as lodash from "lodash";
+import type { PlaceholdersType } from "@/utilitites/types/ReportTemplate";
 
 type PlaceholderProps = {
   testType: string;
@@ -35,8 +33,8 @@ export default function PlaceholderPanel({
   onInsertPlaceholder,
   readOnly = false,
 }: PlaceholderProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [expandedSections, setExpandedSections] = useState({
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [expandedSections, setExpandedSections] = React.useState({
     basic: true,
     testBank: true,
     custom: true,

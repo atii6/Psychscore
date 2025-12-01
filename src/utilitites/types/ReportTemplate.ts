@@ -11,12 +11,14 @@ export type DataSourceType =
   | "test_info"
   | "system"
   | "scores"
-  | "custom";
+  | "custom"
+  | "conditional";
 
 export type PlaceholdersType = {
   data_source: DataSourceType;
   description: string;
   placeholder: string;
+  testBank?: boolean;
 };
 
 export type ReportTemplateType = {
@@ -28,7 +30,7 @@ export type ReportTemplateType = {
   is_system_template: boolean;
   category?: TemplateCategory;
   available_placeholders?: PlaceholdersType[];
-  created_by_id?: string;
+  created_by_id?: number;
   created_by?: string;
   is_sample: boolean;
   is_active_template: boolean;

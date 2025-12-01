@@ -10,18 +10,26 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Brain, HelpCircle, Save } from "lucide-react";
+import useUpdateUser from "@/hooks/users/useUpdateUser";
+import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 
-type Props = {};
-
-function AIDescriptorPreferenceCard({}: Props) {
+function AIDescriptorPreferenceCard() {
   const [useAiDescriptors, setUseAiDescriptors] = React.useState(false);
+  const { data: user } = useGetLoggedInUser();
+  const { mutateAsync: updateUser, isPending: isSavingPreferences } =
+    useUpdateUser();
 
   const handleSavePreference = async () => {
-    // Users management need to be implemented yet.
-    // You can add a toast notification here for user feedback
+    if (user) {
+      await updateUser({
+        id: user?.id || 0,
+        userData: {
+          ...user,
+          use_ai_descriptors: useAiDescriptors,
+        },
+      });
+    }
   };
-
-  const isSavingPreferences = false;
 
   return (
     <Card
