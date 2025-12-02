@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -9,11 +10,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CACHE_AND_STALE_TIME } from "@/utilitites/constants/queryConstants";
 import { Toaster } from "sonner";
 import { ROUTES } from "@/utilitites/constants/routes";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import useUserStore from "@/store/userStore";
 
 // Create a wrapper component that uses useLocation inside the Router context
 function PagesContent() {
-  const { isLoggedIn } = useAuth();
+  const user = useUserStore(React.useCallback((state) => state.user, []));
   return (
     <Layout>
       <Routes>
@@ -25,11 +26,7 @@ function PagesContent() {
                   key={path}
                   path={path}
                   element={
-                    isLoggedIn ? (
-                      <Component />
-                    ) : (
-                      <Navigate to="/Login" replace />
-                    )
+                    user ? <Component /> : <Navigate to="/Login" replace />
                   }
                 />
               );
@@ -39,11 +36,7 @@ function PagesContent() {
                   key={path}
                   path={path}
                   element={
-                    isLoggedIn ? (
-                      <Navigate to="/Dashboard" replace />
-                    ) : (
-                      <Component />
-                    )
+                    user ? <Navigate to="/Dashboard" replace /> : <Component />
                   }
                 />
               );
@@ -52,9 +45,7 @@ function PagesContent() {
         )}
         <Route
           path="*"
-          element={
-            <Navigate to={isLoggedIn ? "/Dashboard" : "/Login"} replace />
-          }
+          element={<Navigate to={user ? "/Dashboard" : "/Login"} replace />}
         />
       </Routes>
     </Layout>
@@ -73,10 +64,8 @@ export default function Pages() {
   return (
     <Router>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <PagesContent />
-          <Toaster richColors />
-        </AuthProvider>
+        <PagesContent />
+        <Toaster richColors />
       </QueryClientProvider>
     </Router>
   );

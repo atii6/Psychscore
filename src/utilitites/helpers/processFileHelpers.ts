@@ -1,16 +1,15 @@
-import { ScoresType } from "@/pages/ManualEntry";
 import { SCORE_TYPE } from "../constants";
-import type { ExtractedScore } from "../types/Assessment";
-import type { ReportTemplateType } from "../types/ReportTemplate";
-import { TestDefinitionType } from "../types/TestSubtestDefinitions";
 import {
   getDescriptorAndPercentile,
   getDescriptorFromPercentile,
   getScaledScoreDescriptor,
 } from "./common";
-import { UserScoreDescriptorType } from "../types/UserScoreDescriptor";
 import { normalizeSubtest } from "./descriptorEvaluationHelpers";
-import { AppUserAttributes } from "../types/User";
+import type { ExtractedScore } from "../types/Assessment";
+import type { ReportTemplateType } from "../types/ReportTemplate";
+import type { TestDefinitionType } from "../types/TestSubtestDefinitions";
+import type { UserScoreDescriptorType } from "../types/UserScoreDescriptor";
+import type { AppUserAttributes } from "../types/User";
 
 export const cleanString = (str: string) =>
   str
@@ -122,7 +121,7 @@ export const applyDescriptor = (
 export const mapScoresToCanonicalNames = (
   scores: ExtractedScore[],
   TestSubtestDefinition: TestDefinitionType[],
-  User: AppUserAttributes | undefined
+  User: AppUserAttributes | null
 ): ExtractedScore[] => {
   try {
     const allUserDefinitions =

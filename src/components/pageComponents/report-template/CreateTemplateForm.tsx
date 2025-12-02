@@ -21,6 +21,8 @@ import { cn } from "@/lib/utils";
 import useUpdateReportTemplate from "@/hooks/report-templates/useUpdateReportTemplate";
 import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAllTestDefinitions";
+import useUserStore from "@/store/userStore";
+import React from "react";
 
 type Props = {
   template?: ReportTemplateType;
@@ -43,7 +45,7 @@ function CreateTemplateForm({
 }: Props) {
   const { mutateAsync: createTemplate, isPending } = useCreateReportTemplate();
   const { data: testDefinitions } = useGetAllTestDefinitions();
-  const { data: user } = useGetLoggedInUser();
+  const user = useUserStore(React.useCallback((state) => state.user, []));
   const { mutateAsync: updateTemplate, isPending: updateLoading } =
     useUpdateReportTemplate();
   const navigate = useNavigate();

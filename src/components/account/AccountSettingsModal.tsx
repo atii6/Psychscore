@@ -43,7 +43,6 @@ import {
   LogOut,
 } from "lucide-react";
 import { format } from "date-fns";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 import useUpdateUser from "@/hooks/users/useUpdateUser";
 import {
   ReportFontFamily,
@@ -51,7 +50,7 @@ import {
   UserRole,
 } from "@/utilitites/types/User";
 import useLogout from "@/hooks/auth/useLogout";
-import { useAuth } from "@/context/AuthContext";
+import useUserStore from "@/store/userStore";
 
 type AccountSettingsModalProps = {
   isOpen: boolean;
@@ -62,10 +61,9 @@ export default function AccountSettingsModal({
   isOpen,
   onClose,
 }: AccountSettingsModalProps) {
-  const { data: user } = useGetLoggedInUser();
+  const user = useUserStore(React.useCallback((state) => state.user, []));
   const { mutateAsync: updateUser } = useUpdateUser();
   const { mutateAsync: logout } = useLogout();
-  const { setLoggedIn } = useAuth();
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [editData, setEditData] = React.useState({
@@ -84,7 +82,6 @@ export default function AccountSettingsModal({
 
   const handleLogout = async () => {
     await logout();
-    setLoggedIn(false);
   };
 
   const handleSaveProfile = async () => {

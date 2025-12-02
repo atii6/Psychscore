@@ -2,7 +2,6 @@ import React from "react";
 import { Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useLogin from "@/hooks/auth/useLogin";
-import { useAuth } from "@/context/AuthContext";
 
 export function LoginForm() {
   const [email, setEmail] = React.useState("");
@@ -10,7 +9,6 @@ export function LoginForm() {
   const [error, setError] = React.useState("");
 
   const { mutateAsync: login, isPending } = useLogin();
-  const { setLoggedIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +16,6 @@ export function LoginForm() {
 
     try {
       await login({ email, password });
-      setLoggedIn(true);
     } catch (err: any) {
       setError(err?.message || "Invalid email or password");
     }

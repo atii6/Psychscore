@@ -1,3 +1,4 @@
+import React from "react";
 import FormTextareaField from "@/components/form/Fields/FormTextareaField";
 import FormTextField from "@/components/form/Fields/FormTextField";
 import Form from "@/components/form/Form";
@@ -9,7 +10,7 @@ import FormResetButton from "@/components/form/Fields/FormResetButton";
 import { Save, X } from "lucide-react";
 import FormButton from "@/components/form/Fields/FormButton";
 import useCreateTestDefinition from "@/hooks/test-subtest-definitions/useCreateTestDefinition";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useUserStore from "@/store/userStore";
 
 type Props = {
   activeTab: string;
@@ -23,7 +24,7 @@ function TestCreationForm({
   isEditingTest = false,
 }: Props) {
   const { mutateAsync: createTest, isPending } = useCreateTestDefinition();
-  const { data: user } = useGetLoggedInUser();
+  const user = useUserStore(React.useCallback((state) => state.user, []));
 
   const initialValues = {
     test_name: "",

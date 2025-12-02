@@ -1,30 +1,41 @@
 import { fetchWrapper } from "@/utilitites/helpers/fetchWrapper";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type { AuthUser, LoginResponse, RegisterPayload } from "./useLogin";
+import useUserStore from "@/store/userStore";
+import type { AppUserAttributes } from "@/utilitites/types/User";
 
-async function registerRequest(payload: RegisterPayload): Promise<AuthUser> {
-  const res = await fetchWrapper<LoginResponse>({
+export interface RegisterPayload {
+  full_name: string;
+  email: string;
+  password: string;
+  role: "admin" | "user";
+}
+
+export interface RegisterResponse {
+  token: string;
+  user: AppUserAttributes;
+}
+
+async function registerRequest(
+  payload: RegisterPayload
+): Promise<RegisterResponse> {
+  return fetchWrapper<RegisterResponse>({
     url: `auth/register`,
     method: "POST",
     body: payload,
   });
-
-  if (res?.token) {
-    localStorage.setItem("token", res.token);
-  }
-
-  return res.user;
 }
 
 export default function useRegister() {
   const queryClient = useQueryClient();
+  const setUser = useUserStore((state) => state.setUser);
 
-  return useMutation<AuthUser, Error, RegisterPayload>({
+  return useMutation<RegisterResponse, Error, RegisterPayload>({
     mutationFn: (payload) => registerRequest(payload),
-    onSuccess: (user) => {
+    onSuccess: (res) => {
+      setUser(res.user);
       queryClient.invalidateQueries({ queryKey: ["me"] });
-      toast.success(`Account created for ${user.full_name}`);
+      toast.success(`Account created for ${res.user.full_name}`);
     },
     onError: (err: any) => {
       toast.error(err?.message || "Registration failed");

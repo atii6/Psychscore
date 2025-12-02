@@ -26,6 +26,7 @@ import useCreateGeneratedReport from "@/hooks/generated-reports/useCreateGenerat
 import useUpdateAssessment from "@/hooks/assessments/useUpdateAssessment";
 import { toast } from "sonner";
 import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useUserStore from "@/store/userStore";
 
 type Props = {
   assessment: AssessmentType;
@@ -46,7 +47,7 @@ function AssessmentReportCards({
 }: Props) {
   const { data: ReportTemplate } = useGetAllReportTemplates();
   const { data: TestSubtestDefinition } = useGetAllTestDefinitions();
-  const { data: User } = useGetLoggedInUser();
+  const User = useUserStore(React.useCallback((state) => state.user, []));
   const { mutateAsync: updateAssessment, isPending: isUpdatingAssessment } =
     useUpdateAssessment();
   const { mutateAsync: createReport, isPending: isCreatingReport } =

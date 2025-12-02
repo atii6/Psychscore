@@ -15,8 +15,8 @@ import TemplateCard from "@/components/pageComponents/report-template/TemplateCa
 import { getAvailablePlaceholders } from "@/components/templates/placeholderUtils";
 import useCreateReportTemplate from "@/hooks/report-templates/useCreateReportTemplate";
 import PagesHeader from "@/components/shared/PagesHeader";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAllTestDefinitions";
+import useUserStore from "@/store/userStore";
 
 export default function TemplatesPage() {
   const { data: ReportTemplate, isLoading } = useGetAllReportTemplates();
@@ -25,7 +25,7 @@ export default function TemplatesPage() {
   const [activeTab, setActiveTab] = React.useState("system");
   const [isCreating, setIsCreating] = React.useState(false);
   const [editingId, setEditingId] = React.useState<number | null>(null);
-  const { data: user } = useGetLoggedInUser();
+  const user = useUserStore(React.useCallback((state) => state.user, []));
   const systemTempsFlat = ReportTemplate?.filter((t) => t.is_system_template);
   const userTempsFlat = ReportTemplate?.filter(
     (t) => t.created_by === user?.email

@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/tooltip";
 import { Brain, HelpCircle, Save } from "lucide-react";
 import useUpdateUser from "@/hooks/users/useUpdateUser";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useUserStore from "@/store/userStore";
 
 function AIDescriptorPreferenceCard() {
   const [useAiDescriptors, setUseAiDescriptors] = React.useState(false);
-  const { data: user } = useGetLoggedInUser();
+  const user = useUserStore(React.useCallback((state) => state.user, []));
   const { mutateAsync: updateUser, isPending: isSavingPreferences } =
     useUpdateUser();
 

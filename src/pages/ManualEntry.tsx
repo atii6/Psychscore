@@ -19,7 +19,7 @@ import {
 } from "@/utilitites/constants";
 import type { ScoreType } from "@/utilitites/types/TestSubtestDefinitions";
 import CreateAssessmentHeader from "@/components/pageComponents/manual-entry/CreateAssessmentHeader";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useUserStore from "@/store/userStore";
 
 export type ScoresType = {
   subtest_name: string;
@@ -77,7 +77,7 @@ export const assessmentInitialValues = {
 
 export default function ManualEntryPage() {
   const navigate = useNavigate();
-  const { data: User } = useGetLoggedInUser();
+  const User = useUserStore(React.useCallback((state) => state.user, []));
 
   const {
     mutateAsync: createAssessment,

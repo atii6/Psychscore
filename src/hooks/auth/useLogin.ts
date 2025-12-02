@@ -1,53 +1,37 @@
 import { fetchWrapper } from "@/utilitites/helpers/fetchWrapper";
+import { AppUserAttributes } from "@/utilitites/types/User";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import useUserStore from "@/store/userStore";
 
 export interface LoginPayload {
   email: string;
   password: string;
 }
 
-export interface RegisterPayload {
-  full_name: string;
-  email: string;
-  password: string;
-  role: "admin" | "user";
-}
-
-export interface AuthUser {
-  id: string;
-  full_name: string;
-  email: string;
-  role: string;
-}
-
 export interface LoginResponse {
   token: string;
-  user: AuthUser;
+  user: AppUserAttributes;
 }
 
-async function loginRequest(payload: LoginPayload): Promise<AuthUser> {
-  const res = await fetchWrapper<LoginResponse>({
+async function loginRequest(payload: LoginPayload): Promise<LoginResponse> {
+  return fetchWrapper<LoginResponse>({
     url: `auth/login`,
     method: "POST",
     body: payload,
   });
-
-  if (res?.token) {
-    localStorage.setItem("token", res.token);
-  }
-
-  return res.user;
 }
 
 export default function useLogin() {
   const queryClient = useQueryClient();
+  const setUser = useUserStore((state) => state.setUser);
 
-  return useMutation<AuthUser, Error, LoginPayload>({
+  return useMutation<LoginResponse, Error, LoginPayload>({
     mutationFn: (payload) => loginRequest(payload),
-    onSuccess: () => {
+    onSuccess: (res) => {
+      setUser(res.user);
       queryClient.invalidateQueries({ queryKey: ["me"] });
-      toast.success(`Welcome back!`);
+      toast.success(`Welcome back, ${res.user.full_name}!`);
     },
     onError: (err: any) => {
       toast.error(err?.message || "Login failed");

@@ -53,7 +53,7 @@ import {
 import type { ScoreType } from "@/utilitites/types/TestSubtestDefinitions";
 import useRemoveFile from "@/hooks/files/UseRemoveFile";
 import FormButton from "@/components/form/Fields/FormButton";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useUserStore from "@/store/userStore";
 
 export default function UploadPage() {
   const {
@@ -68,7 +68,7 @@ export default function UploadPage() {
   const { mutateAsync: updateTestDefinition } = useUpdateTestDefinition();
   const { mutateAsync: createTestDefinition } = useCreateTestDefinition();
   const { mutateAsync: removeUploadedFile } = useRemoveFile();
-  const { data: User } = useGetLoggedInUser();
+  const User = useUserStore(React.useCallback((state) => state.user, []));
   const navigate = useNavigate();
 
   const [uploadedFiles, setUploadedFiles] = React.useState<UploadFileType[]>(

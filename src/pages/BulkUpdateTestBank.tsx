@@ -6,6 +6,7 @@ import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAllTestDefinitions";
 import useUpdateTestDefinition from "@/hooks/test-subtest-definitions/useUpdateTestDefinition";
 import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useUserStore from "@/store/userStore";
 
 type ResultType = {
   success: boolean;
@@ -15,7 +16,7 @@ type ResultType = {
 };
 export default function BulkUpdateTestBankPage() {
   const [result, setResult] = React.useState<ResultType | null>(null);
-  const { data: User } = useGetLoggedInUser();
+  const User = useUserStore(React.useCallback((state) => state.user, []));
 
   const {
     data: testDefinitions = [],

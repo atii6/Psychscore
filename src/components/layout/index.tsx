@@ -1,16 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PreAuthLayout from "./PreAuthLayout";
 import PostAuthLayout from "./PostAuthLayout";
-import { useAuth } from "@/context/AuthContext";
+import useUserStore from "@/store/userStore";
 
 type LayoutProps = {
   children: React.ReactNode;
 };
 
 export default function Layout({ children }: LayoutProps) {
-  const { isLoggedIn } = useAuth();
+  const user = useUserStore(React.useCallback((state) => state.user, []));
+  const isLoading = useUserStore(
+    React.useCallback((state) => state.loading, [])
+  );
+  const initializeUser = useUserStore(
+    React.useCallback((state) => state.initializeUser, [])
+  );
 
-  if (!isLoggedIn) {
+  useEffect(() => {
+    initializeUser();
+  }, [initializeUser]);
+
+  if (isLoading) return <div>Loading...</div>;
+
+  if (!user) {
     return <PreAuthLayout>{children}</PreAuthLayout>;
   }
 

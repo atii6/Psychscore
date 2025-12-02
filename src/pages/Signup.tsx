@@ -1,18 +1,15 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import Form from "@/components/form/Form";
 import z from "zod";
 import FormTextField from "@/components/form/Fields/FormTextField";
 import FormButton from "@/components/form/Fields/FormButton";
 import { GridItem } from "@/components/ui/Grid";
-import useCreateUser from "@/hooks/users/useCreateUser";
 import { USER_ROLES } from "@/utilitites/constants";
 import useRegister from "@/hooks/auth/useRegisterUser";
-import { useAuth } from "@/context/AuthContext";
 
 export default function SignupPage() {
-  // const { mutateAsync: createUser, isPending: isLoading } = useCreateUser();
   const { mutateAsync: registerNewUser, isPending: isLoading } = useRegister();
-  const { setLoggedIn } = useAuth();
 
   const initialValues = {
     name: "",
@@ -43,8 +40,7 @@ export default function SignupPage() {
       role: USER_ROLES.USER,
     };
 
-    await registerNewUser(user);
-    setLoggedIn(true);
+    const res = await registerNewUser(user);
   };
 
   return (

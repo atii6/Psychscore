@@ -1,3 +1,4 @@
+import React from "react";
 import FormButton from "@/components/form/Fields/FormButton";
 import FormResetButton from "@/components/form/Fields/FormResetButton";
 import FormSelectField from "@/components/form/Fields/FormSelectField";
@@ -6,9 +7,9 @@ import FormTextField from "@/components/form/Fields/FormTextField";
 import Form from "@/components/form/Form";
 import CustomContentCard from "@/components/shared/CustomContentCard";
 import { GridItem } from "@/components/ui/Grid";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 import useCreateScoreDescriptor from "@/hooks/user-score-descriptor/useCreateUserScoreDescriptor";
 import useUpdateScoreDescriptor from "@/hooks/user-score-descriptor/useUpdateUserScoreDescriptor";
+import useUserStore from "@/store/userStore";
 import { SCORE_TYPE_OPTIONS } from "@/utilitites/constants";
 import type { ScoreType } from "@/utilitites/types/TestSubtestDefinitions";
 import type { UserScoreDescriptorType } from "@/utilitites/types/UserScoreDescriptor";
@@ -26,7 +27,7 @@ function ScoreDescriptorForm({ descriptor, onCancel, cardStyles }: Props) {
     mutateAsync: updateScoreDescriptor,
     isPending: isUpdatingDescriptor,
   } = useUpdateScoreDescriptor();
-  const { data: User } = useGetLoggedInUser();
+  const User = useUserStore(React.useCallback((state) => state.user, []));
   const { mutateAsync: createScoreDescriptor, isPending: isCreatePending } =
     useCreateScoreDescriptor();
   const initialValues = {

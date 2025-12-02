@@ -4,13 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 
 const getReportById = async (id: number): Promise<AppUserAttributes> => {
   return await fetchWrapper({
-    url: `generated-report/${id}`,
+    url: `user/${id}`,
   });
 };
 
-export default function useGetGenratedReportByID(id: number) {
+export default function useGetUserByID(id: number) {
   return useQuery({
-    queryKey: ["generatedReports", id],
+    queryKey: ["users", id],
     queryFn: () => getReportById(id),
     enabled: !!id,
   });

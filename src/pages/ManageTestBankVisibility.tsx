@@ -4,14 +4,13 @@ import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAll
 import ManageTestVisibilityCard from "@/components/pageComponents/test-bank-visibility/ManageTestVisibilityCard";
 import QuickActionCard from "@/components/pageComponents/test-bank-visibility/QuickActionCard";
 import UnsavedChangesCard from "@/components/pageComponents/test-bank-visibility/UnsavedChangesCard";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 import { USER_ROLES } from "@/utilitites/constants";
+import useUserStore from "@/store/userStore";
 
 export default function ManageTestBankVisibility() {
   const [changes, setChanges] = React.useState<Record<string, boolean>>({});
-  const { data: user, isLoading: isLoadingUser } = useGetLoggedInUser();
+  const user = useUserStore(React.useCallback((state) => state.user, []));
   const { data: testDefinitions = [], isLoading } = useGetAllTestDefinitions();
-  const isUserAdmin = true;
 
   const handleToggle = (defId: string | number, currentValue: boolean) => {
     setChanges((prev) => ({
@@ -72,7 +71,7 @@ export default function ManageTestBankVisibility() {
 
         <ManageTestVisibilityCard
           testDefinitions={testDefinitions}
-          isLoading={isLoading || isLoadingUser}
+          isLoading={isLoading}
           changes={changes}
           handleToggle={handleToggle}
         />

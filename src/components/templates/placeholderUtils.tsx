@@ -1,6 +1,6 @@
+import type { AppUser } from "@/store/userStore";
 import type { PlaceholdersType } from "@/utilitites/types/ReportTemplate";
-import { TestDefinitionType } from "@/utilitites/types/TestSubtestDefinitions";
-import { AppUserAttributes } from "@/utilitites/types/User";
+import type { TestDefinitionType } from "@/utilitites/types/TestSubtestDefinitions";
 
 const getStandardPlaceholders = (testType: string) => {
   // Only common placeholders - no longer hardcoded test-specific ones
@@ -66,7 +66,7 @@ const getStandardPlaceholders = (testType: string) => {
 export const getAvailablePlaceholders = async (
   testType: string,
   savedPlaceholders?: PlaceholdersType[],
-  User?: AppUserAttributes,
+  User?: AppUser,
   TestSubtestDefinition?: TestDefinitionType[]
 ) => {
   console.log("Getting available placeholders for test type:", testType);

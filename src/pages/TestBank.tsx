@@ -10,13 +10,13 @@ import TestCreationForm from "@/components/pageComponents/test-bank/TestCreation
 import CustomContentCard from "@/components/shared/CustomContentCard";
 import TestDetailCard from "@/components/pageComponents/test-bank/TestDetailCard";
 import PagesHeader from "@/components/shared/PagesHeader";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
+import useUserStore from "@/store/userStore";
 
 export default function TestBankPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
   const [activeTab, setActiveTab] = React.useState("system");
   const [isCreating, setIsCreating] = React.useState(false);
-  const { data: User } = useGetLoggedInUser();
+  const User = useUserStore(React.useCallback((state) => state.user, []));
 
   const { data: TestSubtestDefinition, isLoading } = useGetAllTestDefinitions();
   const systemDefinitions = React.useMemo(
