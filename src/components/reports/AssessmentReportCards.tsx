@@ -25,7 +25,6 @@ import { useNavigate } from "react-router-dom";
 import useCreateGeneratedReport from "@/hooks/generated-reports/useCreateGeneratedReport";
 import useUpdateAssessment from "@/hooks/assessments/useUpdateAssessment";
 import { toast } from "sonner";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 import useUserStore from "@/store/userStore";
 
 type Props = {

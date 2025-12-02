@@ -3,7 +3,6 @@ import useUserStore from "@/store/userStore";
 import { fetchWrapper } from "@/utilitites/helpers/fetchWrapper";
 
 async function logoutRequest() {
-  // Call backend logout endpoint to clear the cookie
   await fetchWrapper({
     url: "auth/logout",
     method: "POST",

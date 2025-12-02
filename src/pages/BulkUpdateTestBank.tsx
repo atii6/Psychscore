@@ -5,7 +5,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import useGetAllTestDefinitions from "@/hooks/test-subtest-definitions/useGetAllTestDefinitions";
 import useUpdateTestDefinition from "@/hooks/test-subtest-definitions/useUpdateTestDefinition";
-import useGetLoggedInUser from "@/hooks/auth/useGetLoggedInUser";
 import useUserStore from "@/store/userStore";
 
 type ResultType = {

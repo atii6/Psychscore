@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PreAuthLayout from "./PreAuthLayout";
 import PostAuthLayout from "./PostAuthLayout";
 import useUserStore from "@/store/userStore";
@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
     React.useCallback((state) => state.initializeUser, [])
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     initializeUser();
   }, [initializeUser]);
 
