@@ -10,7 +10,7 @@ type Props = {
 function Grid({ children, className, onClick }: Props) {
   return (
     <div
-      className={cn("grid md:grid-cols-6 gap-4", className)}
+      className={cn("grid md:grid-cols-6 gap-3", className)}
       onClick={onClick}
     >
       {children}

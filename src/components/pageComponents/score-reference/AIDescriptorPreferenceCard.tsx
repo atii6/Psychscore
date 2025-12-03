@@ -12,22 +12,36 @@ import {
 import { Brain, HelpCircle, Save } from "lucide-react";
 import useUpdateUser from "@/hooks/users/useUpdateUser";
 import useUserStore from "@/store/userStore";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 function AIDescriptorPreferenceCard() {
-  const [useAiDescriptors, setUseAiDescriptors] = React.useState(false);
   const user = useUserStore(React.useCallback((state) => state.user, []));
+  const [useAiDescriptors, setUseAiDescriptors] = React.useState(
+    user?.use_ai_descriptors || false
+  );
   const { mutateAsync: updateUser, isPending: isSavingPreferences } =
     useUpdateUser();
-
+  const queryClient = useQueryClient();
   const handleSavePreference = async () => {
     if (user) {
-      await updateUser({
-        id: user?.id || 0,
-        userData: {
-          ...user,
-          use_ai_descriptors: useAiDescriptors,
+      await updateUser(
+        {
+          id: user?.id || 0,
+          userData: {
+            ...user,
+            use_ai_descriptors: useAiDescriptors,
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: ["users", user?.id],
+            });
+            toast.success("Settings updated.");
+          },
+        }
+      );
     }
   };
 

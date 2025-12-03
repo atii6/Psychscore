@@ -23,9 +23,9 @@ export default function useUpdateReportTemplate() {
   const queryClient = useQueryClient();
   return useMutation<ReportTemplateType, Error, MutationVariables>({
     mutationFn: updateTemplate,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["templates"],
+        queryKey: ["templates", variables.id],
       });
       toast.success("Template updated successfully.");
     },

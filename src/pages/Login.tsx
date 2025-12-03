@@ -9,8 +9,9 @@ export default function LoginPage() {
           {/* Header with Icon */}
           <div className="flex flex-col items-center space-y-4">
             <div className="w-24 h-24 rounded-full flex items-center justify-center">
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/2a0a3114e_logo.png" />
+              <img src="/psychscore_logo.png" />
             </div>
+
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-900">
                 Welcome to PsychScore Pro
@@ -33,7 +34,7 @@ export default function LoginPage() {
             <div className="text-gray-600">
               Need an account?{" "}
               <Link
-                to="/Signup"
+                to="/signup"
                 className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
               >
                 Sign up

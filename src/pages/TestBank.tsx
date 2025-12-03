@@ -34,7 +34,8 @@ export default function TestBankPage() {
     testDef: TestDefinitionType,
     isSystemTab: boolean
   ) => {
-    const canEdit = true;
+    const isCreator = testDef.created_by === User?.email;
+    const canEdit = isCreator;
 
     return <TestDetailCard testDef={testDef} canEdit={canEdit} />;
   };
@@ -125,9 +126,11 @@ export default function TestBankPage() {
           <TabsContent value="system" className="space-y-4">
             {filteredSystemDefinitions &&
             filteredSystemDefinitions.length > 0 ? (
-              filteredSystemDefinitions?.map((testDef) =>
-                renderTestCard(testDef, true)
-              )
+              filteredSystemDefinitions?.map((testDef) => (
+                <React.Fragment key={testDef.id}>
+                  {renderTestCard(testDef, true)}
+                </React.Fragment>
+              ))
             ) : (
               <Card
                 className="border-0 shadow-lg rounded-2xl"
@@ -156,9 +159,11 @@ export default function TestBankPage() {
 
           <TabsContent value="my" className="space-y-4">
             {filteredMyDefinitions && filteredMyDefinitions.length > 0 ? (
-              filteredMyDefinitions.map((testDef) =>
-                renderTestCard(testDef, false)
-              )
+              filteredMyDefinitions.map((testDef) => (
+                <React.Fragment key={testDef.id}>
+                  {renderTestCard(testDef, false)}
+                </React.Fragment>
+              ))
             ) : (
               <Card
                 className="border-0 shadow-lg rounded-2xl"

@@ -16,6 +16,7 @@ import FormTextField from "@/components/form/Fields/FormTextField";
 import FormTextareaField from "@/components/form/Fields/FormTextareaField";
 import AddSubtest from "./AddSubtest";
 import useUpdateTestDefinition from "@/hooks/test-subtest-definitions/useUpdateTestDefinition";
+import { toast } from "sonner";
 
 type Props = {
   testDef: TestDefinitionType;
@@ -48,7 +49,7 @@ function TestDetailCard({ testDef, canEdit }: Props) {
   const handleStartEdit = (testDef: TestDefinitionType) => {
     const isCreator = true;
     if (!isCreator) {
-      alert("You can only edit test definitions you created.");
+      toast.info("You can only edit test definitions you created.");
       return;
     }
     setEditingTestId(testDef.id);

@@ -11,19 +11,18 @@ function PostAuthLayout({ children }: Props) {
   return (
     <>
       <div
-        className="min-h-screen flex w-full"
+        className="h-screen flex w-full overflow-hidden"
         style={{ backgroundColor: "var(--background)" }}
       >
-        {/* Sidebar + Navigation */}
-
-        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+        <div className="w-64 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
           <Sidebar />
           <NavigationMenu />
           <SidebarFooter setShowAccountSettings={setShowAccountSettings} />
         </div>
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+          {children}
+        </main>
       </div>
 
       <AccountSettingsModal

@@ -14,7 +14,23 @@ import useUserStore from "@/store/userStore";
 
 // Create a wrapper component that uses useLocation inside the Router context
 function PagesContent() {
-  const user = useUserStore(React.useCallback((state) => state.user, []));
+  const { user, loading, initialized } = useUserStore(
+    React.useCallback((state) => state, [])
+  );
+
+  if (!initialized || loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <Routes>
@@ -26,7 +42,7 @@ function PagesContent() {
                   key={path}
                   path={path}
                   element={
-                    user ? <Component /> : <Navigate to="/Login" replace />
+                    user ? <Component /> : <Navigate to="/login" replace />
                   }
                 />
               );
@@ -36,7 +52,7 @@ function PagesContent() {
                   key={path}
                   path={path}
                   element={
-                    user ? <Navigate to="/Dashboard" replace /> : <Component />
+                    user ? <Navigate to="/dashboard" replace /> : <Component />
                   }
                 />
               );
@@ -45,7 +61,7 @@ function PagesContent() {
         )}
         <Route
           path="*"
-          element={<Navigate to={user ? "/Dashboard" : "/Login"} replace />}
+          element={<Navigate to={user ? "/dashboard" : "/login"} replace />}
         />
       </Routes>
     </Layout>
@@ -61,6 +77,7 @@ export default function Pages() {
       },
     },
   });
+
   return (
     <Router>
       <QueryClientProvider client={queryClient}>

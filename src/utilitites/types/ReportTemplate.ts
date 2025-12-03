@@ -19,6 +19,7 @@ export type PlaceholdersType = {
   description: string;
   placeholder: string;
   testBank?: boolean;
+  custom?: boolean;
 };
 
 export type ReportTemplateType = {

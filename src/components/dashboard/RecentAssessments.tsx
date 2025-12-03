@@ -33,6 +33,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AssessmentType } from "@/utilitites/types/Assessment";
 import { GeneratedReport } from "@/utilitites/types/GeneratedReports";
+import useDeleteAssessment from "@/hooks/assessments/useDeleteAssessment";
+import useDeleteGeneratedReport from "@/hooks/generated-reports/useDeleteGeneratedReport";
+import useGetAllGeneratedReports from "@/hooks/generated-reports/useGetAllGeneratedReports";
+import { toast } from "sonner";
 // import { Assessment } from "@/api/entities";
 // import { GeneratedReport } from "@/api/entities";
 
@@ -55,21 +59,22 @@ export default function RecentAssessments({
   onGenerateReport,
   generatedReports,
 }: RecentAssessmentsProps) {
+  const { mutateAsync: deleteAssessment } = useDeleteAssessment();
+  const { mutateAsync: deleteGeneratedReport } = useDeleteGeneratedReport();
+  const { data: GeneratedReport } = useGetAllGeneratedReports();
   const handleDeleteAssessment = async (assessmentId: number) => {
-    // try {
-    //   // Also delete any generated reports for this assessment
-    //   const reports = await GeneratedReport.filter({
-    //     assessment_id: assessmentId,
-    //   });
-    //   for (const report of reports) {
-    //     await GeneratedReport.delete(report.id);
-    //   }
-    //   await Assessment.delete(assessmentId);
-    //   if (onAssessmentUpdate) onAssessmentUpdate();
-    // } catch (error) {
-    //   console.error("Failed to delete assessment:", error);
-    //   alert("Failed to delete assessment. Please try again.");
-    // }
+    try {
+      const reports =
+        GeneratedReport?.filter(
+          (report) => report.assessment_id === assessmentId
+        ) || [];
+      for (const report of reports) {
+        await deleteGeneratedReport(report.id);
+      }
+      await deleteAssessment(assessmentId);
+    } catch (error) {
+      console.error("Failed to delete assessment:", error);
+    }
   };
 
   const handleViewReport = async (assessmentId: number) => {
@@ -83,11 +88,10 @@ export default function RecentAssessments({
           "_blank"
         );
       } else {
-        alert("No report found for this assessment.");
+        toast.info("No report found for this assessment.");
       }
     } catch (error) {
       console.error("Failed to find report:", error);
-      alert("Failed to view report. Please try again.");
     }
   };
 
@@ -97,11 +101,11 @@ export default function RecentAssessments({
         onGenerateReport(assessment);
       } catch (error) {
         console.error("Failed to generate report:", error);
-        alert("Failed to generate report. Please try again.");
+        toast.error("Failed to generate report. Please try again.");
       }
     } else {
       console.error("onGenerateReport callback not provided");
-      alert(
+      toast.info(
         "Report generation is not properly configured. Please refresh the page and try again."
       );
     }

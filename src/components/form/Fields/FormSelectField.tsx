@@ -76,9 +76,10 @@ const FormSelectField: React.FC<FormSelectFieldProps> = ({
                   onChange && onChange(value);
                 }}
                 disabled={isSelectDisabled}
+                defaultValue={value || field.value}
                 {...field}
               >
-                <SelectTrigger>
+                <SelectTrigger value={value}>
                   <SelectValue
                     className="text-[#efefef]"
                     placeholder={placeholder}

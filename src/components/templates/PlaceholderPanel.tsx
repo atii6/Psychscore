@@ -62,21 +62,18 @@ export default function PlaceholderPanel({
   const basicPlaceholders = React.useMemo(
     () =>
       filteredPlaceholders.filter(
-        (p) =>
-          p.data_source !== "scores" &&
-          p.data_source !== "test_info" &&
-          p.data_source !== "custom"
+        (p) => p.data_source !== "scores" && !p.testBank && !p.custom
       ),
     [filteredPlaceholders]
   );
 
   const testBankPlaceholders = React.useMemo(
-    () => filteredPlaceholders.filter((p) => p.data_source === "test_info"),
+    () => filteredPlaceholders.filter((p) => p.testBank),
     [filteredPlaceholders]
   );
 
   const customPlaceholders = React.useMemo(
-    () => filteredPlaceholders.filter((p) => p.data_source === "custom"),
+    () => filteredPlaceholders.filter((p) => p.custom),
     [filteredPlaceholders]
   );
 

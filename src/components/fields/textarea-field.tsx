@@ -1,7 +1,5 @@
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageIcon } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { GridItem } from "@/components/ui/Grid";
 import type { GridItemProps } from "@/components/ui/Grid/GridItem";
 import ErrorText from "./error-text";

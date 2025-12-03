@@ -23,11 +23,5 @@ export default function useUpdateUser() {
   const queryClient = useQueryClient();
   return useMutation<AppUserAttributes, Error, MutationVariables>({
     mutationFn: updateUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["users"],
-      });
-      toast.success("User updated successfully.");
-    },
   });
 }

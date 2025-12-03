@@ -2,12 +2,16 @@ import React from "react";
 import PreAuthLayout from "./PreAuthLayout";
 import PostAuthLayout from "./PostAuthLayout";
 import useUserStore from "@/store/userStore";
+import { useLocation } from "react-router-dom";
 
 type LayoutProps = {
   children: React.ReactNode;
 };
 
+const PUBLIC_ROUTES = ["/login", "/signup"];
+
 export default function Layout({ children }: LayoutProps) {
+  const { pathname } = useLocation();
   const user = useUserStore(React.useCallback((state) => state.user, []));
   const isLoading = useUserStore(
     React.useCallback((state) => state.loading, [])
@@ -15,9 +19,17 @@ export default function Layout({ children }: LayoutProps) {
   const initializeUser = useUserStore(
     React.useCallback((state) => state.initializeUser, [])
   );
+  const isUserInitialized = useUserStore(
+    React.useCallback((state) => state.initialized, [])
+  );
+  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+    pathname?.startsWith(route)
+  );
 
   React.useEffect(() => {
-    initializeUser();
+    if (!isUserInitialized && !isPublicRoute) {
+      initializeUser();
+    }
   }, [initializeUser]);
 
   if (isLoading) return <div>Loading...</div>;

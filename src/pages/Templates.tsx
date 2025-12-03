@@ -209,9 +209,11 @@ export default function TemplatesPage() {
                     {expandedCategories.has(category) && (
                       <CardContent>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {templates.map((template) =>
-                            renderTemplateCard(template)
-                          )}
+                          {templates.map((template) => (
+                            <React.Fragment key={template.id}>
+                              {renderTemplateCard(template)}
+                            </React.Fragment>
+                          ))}
                         </div>
                       </CardContent>
                     )}
@@ -286,9 +288,11 @@ export default function TemplatesPage() {
                     {expandedCategories.has(category) && (
                       <CardContent>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {templates.map((template) =>
-                            renderTemplateCard(template)
-                          )}
+                          {templates.map((template) => (
+                            <React.Fragment key={template.id}>
+                              {renderTemplateCard(template)}
+                            </React.Fragment>
+                          ))}
                         </div>
                       </CardContent>
                     )}

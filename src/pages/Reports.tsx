@@ -10,6 +10,14 @@ import type { AssessmentType } from "@/utilitites/types/Assessment";
 import type { GeneratedReport } from "@/utilitites/types/GeneratedReports";
 import AssessmentReportCards from "@/components/reports/AssessmentReportCards";
 import PagesHeader from "@/components/shared/PagesHeader";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ReportsPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -84,10 +92,12 @@ export default function ReportsPage() {
                   className="pl-10 py-2 rounded-lg border-2"
                 />
               </div>
+
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-4 py-2 rounded-lg border-2 border-gray-200"
+                name="status"
               >
                 <option value="all">All Status</option>
                 <option value="processed">Ready for Report</option>

@@ -23,9 +23,9 @@ export default function useUpdateAssessment() {
   const queryClient = useQueryClient();
   return useMutation<AssessmentType, Error, MutationVariables>({
     mutationFn: updateAssessment,
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["assessments"],
+        queryKey: ["assessments", variables.id],
       });
       toast.success("Assessment updated successfully.");
     },

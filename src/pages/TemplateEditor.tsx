@@ -59,6 +59,7 @@ export default function TemplateEditor() {
         template_content: newContent,
       },
     });
+    navigate("/templates");
   };
 
   const insertPlaceholder = (placeholder: string) => {

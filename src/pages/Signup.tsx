@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import Form from "@/components/form/Form";
 import z from "zod";
@@ -50,7 +49,7 @@ export default function SignupPage() {
           {/* Header */}
           <div className="flex flex-col items-center space-y-4">
             <div className="w-24 h-24 rounded-full flex items-center justify-center">
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/2a0a3114e_logo.png" />
+              <img src="/psychscore_logo.png" />
             </div>
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-900">
@@ -100,7 +99,7 @@ export default function SignupPage() {
           <div className="text-center text-sm text-gray-600">
             Already have an account?{" "}
             <Link
-              to="/Login"
+              to="/login"
               className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
             >
               Sign in

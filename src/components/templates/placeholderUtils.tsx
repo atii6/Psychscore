@@ -66,7 +66,7 @@ const getStandardPlaceholders = (testType: string) => {
 export const getAvailablePlaceholders = async (
   testType: string,
   savedPlaceholders?: PlaceholdersType[],
-  User?: AppUserAttributes,
+  User?: AppUserAttributes | null,
   TestSubtestDefinition?: TestDefinitionType[]
 ) => {
   console.log("Getting available placeholders for test type:", testType);

@@ -111,8 +111,12 @@ export default function ManualEntryPage() {
       created_by: User?.email,
     };
 
-    await createAssessment({ assessment });
-    navigate(createPageUrl("Dashboard"));
+    try {
+      await createAssessment({ assessment });
+      navigate(createPageUrl("Dashboard"));
+    } catch (error) {
+      console.error("Failed to create assessment", error);
+    }
   };
 
   return (

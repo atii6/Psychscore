@@ -8,7 +8,7 @@ function TestAliasesBadge({ testAliases }: Props) {
       <h4 className="font-medium mb-2">Test Aliases:</h4>
       <div className="flex flex-wrap gap-2">
         {testAliases.map((alias, idx) => (
-          <Badge key={idx} variant="outline">
+          <Badge key={idx} variant="outline" className="rounded-full">
             {alias}
           </Badge>
         ))}

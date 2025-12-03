@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,14 +27,10 @@ import {
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import {
-  CreditCard,
   User as UserIcon,
-  Crown,
-  HardDrive,
   Edit,
   Save,
   X,
-  Download,
   HelpCircle,
   Palette,
   Type,
@@ -44,13 +39,23 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import useUpdateUser from "@/hooks/users/useUpdateUser";
-import {
+import type {
   ReportFontFamily,
   ReportTableThemeColor,
   UserRole,
 } from "@/utilitites/types/User";
 import useLogout from "@/hooks/auth/useLogout";
 import useUserStore from "@/store/userStore";
+import useGetUserByID from "@/hooks/users/useGetUserById";
+import SubscriptionCard from "./SubscriptionCard";
+import BillingHistoryCard from "./BillingHistoryCard";
+import UsageCard from "./UsageCard";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import FontSettingsForm from "./FontSettingsForm";
+import LabeledSwitch from "./LabeledSwitch";
+import ColorThemeSelector from "./ColorThemeSelector";
+import RichTextEditorCard from "./RichTextEditorCard";
 
 type AccountSettingsModalProps = {
   isOpen: boolean;
@@ -62,15 +67,17 @@ export default function AccountSettingsModal({
   onClose,
 }: AccountSettingsModalProps) {
   const user = useUserStore(React.useCallback((state) => state.user, []));
+  const { data: userByID, isLoading } = useGetUserByID(user?.id || 0);
   const { mutateAsync: updateUser } = useUpdateUser();
   const { mutateAsync: logout } = useLogout();
+  const queryClient = useQueryClient();
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [editData, setEditData] = React.useState({
-    full_name: user?.full_name || "",
-    phone: user?.phone || "",
-    license_number: user?.license_number || "",
-    practice_name: user?.practice_name || "",
+    full_name: "",
+    phone: "",
+    license_number: "",
+    practice_name: "",
   });
   const [reportSettings, setReportSettings] = React.useState({
     report_table_theme_color: "neutral_gray",
@@ -79,6 +86,26 @@ export default function AccountSettingsModal({
     report_footer_content: "",
     report_font_family: "Times New Roman",
   });
+
+  React.useMemo(() => {
+    if (userByID) {
+      setEditData({
+        full_name: userByID.full_name || "",
+        phone: userByID.phone || "",
+        license_number: userByID.license_number || "",
+        practice_name: userByID.practice_name || "",
+      });
+
+      setReportSettings({
+        report_table_theme_color:
+          userByID.report_table_theme_color || "neutral_gray",
+        report_table_show_title: userByID.report_table_show_title ?? true,
+        report_header_content: userByID.report_header_content || "",
+        report_footer_content: userByID.report_footer_content || "",
+        report_font_family: userByID.report_font_family || "Times New Roman",
+      });
+    }
+  }, [userByID]);
 
   const handleLogout = async () => {
     await logout();
@@ -92,10 +119,20 @@ export default function AccountSettingsModal({
       role: user?.role as UserRole,
       email: user?.email || "",
     };
-    await updateUser({
-      id: user?.id || 0,
-      userData,
-    });
+    await updateUser(
+      {
+        id: user?.id || 0,
+        userData,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["users", user?.id],
+          });
+          toast.success("User info updated.");
+        },
+      }
+    );
     setIsEditing(false);
   };
 
@@ -109,45 +146,22 @@ export default function AccountSettingsModal({
         report_font_family:
           reportSettings.report_font_family as ReportFontFamily,
       };
-      await updateUser({
-        id: user?.id || 0,
-        userData,
-      });
+      await updateUser(
+        {
+          id: user?.id || 0,
+          userData,
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: ["users", user.id],
+            });
+            toast.success("Settings updated.");
+          },
+        }
+      );
     }
   };
-
-  const subscriptionData = {
-    plan: "Professional",
-    status: "Active",
-    cost: "$49",
-    billing_period: "monthly",
-    next_billing_date: "2025-02-15",
-    assessments_this_month: 12,
-    assessment_limit: 100,
-    storage_used: "2.4 GB",
-    storage_limit: "10 GB",
-  };
-
-  const billingHistory = [
-    {
-      date: "2025-01-15",
-      amount: "$49.00",
-      status: "Paid",
-      invoice: "INV-2025-001",
-    },
-    {
-      date: "2024-12-15",
-      amount: "$49.00",
-      status: "Paid",
-      invoice: "INV-2024-012",
-    },
-    {
-      date: "2024-11-15",
-      amount: "$49.00",
-      status: "Paid",
-      invoice: "INV-2024-011",
-    },
-  ];
 
   const colorThemes = {
     neutral_gray: {
@@ -160,17 +174,7 @@ export default function AccountSettingsModal({
     mint_green: { name: "Mint Green", preview: "#bbf7d0", border: "#4ade80" },
   };
 
-  const quillModules = {
-    toolbar: [
-      [{ header: [1, 2, 3, false] }],
-      ["bold", "italic", "underline"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      [{ align: [] }],
-      ["clean"],
-    ],
-  };
-
-  if (!user) return null;
+  if (!userByID || isLoading) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -260,12 +264,12 @@ export default function AccountSettingsModal({
                         }
                       />
                     ) : (
-                      <p className="font-medium">{user.full_name}</p>
+                      <p className="font-medium">{userByID.full_name}</p>
                     )}
                   </div>
                   <div>
                     <Label className="text-gray-500">Email Address</Label>
-                    <p className="font-medium">{user.email}</p>
+                    <p className="font-medium">{userByID.email}</p>
                   </div>
                   <div>
                     <Label className="text-gray-500">Phone Number</Label>
@@ -277,7 +281,9 @@ export default function AccountSettingsModal({
                         }
                       />
                     ) : (
-                      <p className="font-medium">{user.phone || "Not set"}</p>
+                      <p className="font-medium">
+                        {userByID.phone || "Not set"}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -294,7 +300,7 @@ export default function AccountSettingsModal({
                       />
                     ) : (
                       <p className="font-medium">
-                        {user.license_number || "Not set"}
+                        {userByID.license_number || "Not set"}
                       </p>
                     )}
                   </div>
@@ -312,7 +318,7 @@ export default function AccountSettingsModal({
                       />
                     ) : (
                       <p className="font-medium">
-                        {user.practice_name || "Not set"}
+                        {userByID.practice_name || "Not set"}
                       </p>
                     )}
                   </div>
@@ -320,7 +326,7 @@ export default function AccountSettingsModal({
                     <Label className="text-gray-500">Member Since</Label>
                     <p className="font-medium">
                       {format(
-                        new Date(user.created_date || ""),
+                        new Date(userByID.created_date || ""),
                         "MMMM d, yyyy"
                       )}
                     </p>
@@ -331,238 +337,20 @@ export default function AccountSettingsModal({
           </TabsContent>
 
           <TabsContent value="subscription" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Crown className="w-5 h-5 text-yellow-500" />
-                  Subscription Plan
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-start p-6 bg-blue-50 rounded-lg border border-blue-200">
-                  <div>
-                    <Badge className="bg-blue-600 text-white">
-                      {subscriptionData.plan}
-                    </Badge>
-                    <p className="text-3xl font-bold mt-2">
-                      {subscriptionData.cost}
-                      <span className="text-lg font-normal text-gray-600">
-                        /month
-                      </span>
-                    </p>
-                    <p className="text-sm text-green-600 font-medium">
-                      Status: {subscriptionData.status}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-gray-600">Next billing date:</p>
-                    <p className="font-medium">
-                      {format(
-                        new Date(subscriptionData.next_billing_date),
-                        "MMMM d, yyyy"
-                      )}
-                    </p>
-                    <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm">
-                        Cancel Subscription
-                      </Button>
-                      <Button size="sm">Upgrade Plan</Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <SubscriptionCard />
           </TabsContent>
 
           <TabsContent value="billing" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-green-600" />
-                  Billing History
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="border rounded-lg overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="p-3 text-left font-medium">Date</th>
-                        <th className="p-3 text-left font-medium">Amount</th>
-                        <th className="p-3 text-left font-medium">Status</th>
-                        <th className="p-3 text-left font-medium">Invoice</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {billingHistory.map((item) => (
-                        <tr key={item.invoice} className="border-t">
-                          <td className="p-3">{item.date}</td>
-                          <td className="p-3">{item.amount}</td>
-                          <td className="p-3">
-                            <Badge
-                              variant="outline"
-                              className="text-green-700 bg-green-50 border-green-200"
-                            >
-                              {item.status}
-                            </Badge>
-                          </td>
-                          <td className="p-3">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="flex items-center gap-1"
-                            >
-                              <Download className="w-3 h-3" /> {item.invoice}
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
+            <BillingHistoryCard />
           </TabsContent>
 
           <TabsContent value="usage" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <HardDrive className="w-5 h-5 text-purple-600" />
-                  Current Usage
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <div className="flex justify-between mb-1 text-sm">
-                    <span className="font-medium">Assessments This Month</span>
-                    <span className="text-gray-500">
-                      {subscriptionData.assessments_this_month} /{" "}
-                      {subscriptionData.assessment_limit}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className="bg-blue-600 h-2.5 rounded-full"
-                      style={{
-                        width: `${
-                          (subscriptionData.assessments_this_month /
-                            subscriptionData.assessment_limit) *
-                          100
-                        }%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1 text-sm">
-                    <span className="font-medium">Storage Used</span>
-                    <span className="text-gray-500">
-                      {subscriptionData.storage_used} /{" "}
-                      {subscriptionData.storage_limit}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className="bg-purple-600 h-2.5 rounded-full"
-                      style={{ width: "24%" }}
-                    ></div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <UsageCard />
           </TabsContent>
 
           <TabsContent value="report_customization" className="space-y-6">
             {/* Font Selection */}
-            <Card
-              className="border-0 shadow-lg rounded-2xl"
-              style={{ backgroundColor: "var(--card-background)" }}
-            >
-              <CardHeader
-                className="pb-4"
-                style={{ borderBottom: "2px solid var(--light-blue)" }}
-              >
-                <CardTitle className="flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: "var(--light-blue)" }}
-                  >
-                    <Type
-                      className="w-5 h-5"
-                      style={{ color: "var(--secondary-blue)" }}
-                    />
-                  </div>
-                  <div>
-                    <h3
-                      className="text-lg font-semibold"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      Font Settings
-                    </h3>
-                    <p
-                      className="text-sm"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      Choose the default font for your reports
-                    </p>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label
-                      className="text-sm font-medium mb-3 block"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      Report Font Family
-                    </Label>
-                    <Select
-                      value={reportSettings.report_font_family}
-                      onValueChange={(value) =>
-                        setReportSettings((prev) => ({
-                          ...prev,
-                          report_font_family: value,
-                        }))
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Times New Roman">
-                          Times New Roman (Traditional)
-                        </SelectItem>
-                        <SelectItem value="Arial">
-                          Arial (Sans-serif)
-                        </SelectItem>
-                        <SelectItem value="Calibri">
-                          Calibri (Modern)
-                        </SelectItem>
-                        <SelectItem value="Georgia">
-                          Georgia (Elegant)
-                        </SelectItem>
-                        <SelectItem value="Verdana">Verdana (Clean)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex justify-end">
-                    <Button
-                      onClick={handleSaveReportSettings}
-                      className="text-white"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, var(--primary-blue), var(--secondary-blue))",
-                      }}
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Font Settings
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <FontSettingsForm userData={userByID} />
 
             {/* Table Customization */}
             <Card
@@ -608,38 +396,17 @@ export default function AccountSettingsModal({
                     >
                       Table Color Theme
                     </Label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {Object.entries(colorThemes).map(([key, theme]) => (
-                        <div
-                          key={key}
-                          onClick={() =>
-                            setReportSettings((prev) => ({
-                              ...prev,
-                              report_table_theme_color: key,
-                            }))
-                          }
-                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
-                            reportSettings.report_table_theme_color === key
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
-                        >
-                          <div
-                            className="w-full h-8 rounded-lg mb-2"
-                            style={{
-                              backgroundColor: theme.preview,
-                              border: `1px solid ${theme.border}`,
-                            }}
-                          />
-                          <p
-                            className="text-sm font-medium text-center"
-                            style={{ color: "var(--text-primary)" }}
-                          >
-                            {theme.name}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                    <ColorThemeSelector
+                      themes={colorThemes}
+                      selected={reportSettings.report_table_theme_color}
+                      onSelect={(key) =>
+                        setReportSettings((prev) => ({
+                          ...prev,
+                          report_table_theme_color:
+                            key as ReportTableThemeColor,
+                        }))
+                      }
+                    />
                   </div>
 
                   <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
@@ -711,28 +478,24 @@ export default function AccountSettingsModal({
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Switch
-                        id="show-titles"
-                        checked={reportSettings.report_table_show_title}
-                        onCheckedChange={(checked) =>
-                          setReportSettings((prev) => ({
-                            ...prev,
-                            report_table_show_title: checked,
-                          }))
-                        }
-                      />
-                      <Label
-                        htmlFor="show-titles"
-                        className={`font-medium transition-colors duration-200 ${
-                          reportSettings.report_table_show_title
-                            ? "text-blue-600"
-                            : "text-gray-500"
-                        }`}
-                      >
-                        {reportSettings.report_table_show_title ? "On" : "Off"}
-                      </Label>
-                    </div>
+
+                    <LabeledSwitch
+                      label={
+                        reportSettings.report_table_show_title ? "On" : "Off"
+                      }
+                      checked={reportSettings.report_table_show_title}
+                      onChange={(checked) =>
+                        setReportSettings((prev) => ({
+                          ...prev,
+                          report_table_show_title: checked,
+                        }))
+                      }
+                      labelStyle={
+                        reportSettings.report_table_show_title
+                          ? "text-blue-600"
+                          : "text-gray-500"
+                      }
+                    />
                   </div>
 
                   <div className="flex justify-end">
@@ -789,51 +552,31 @@ export default function AccountSettingsModal({
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-6">
-                  <div>
-                    <Label
-                      className="text-sm font-medium mb-3 block"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      Report Header
-                    </Label>
-                    <div className="border rounded-lg">
-                      <ReactQuill
-                        value={reportSettings.report_header_content}
-                        onChange={(value) =>
-                          setReportSettings((prev) => ({
-                            ...prev,
-                            report_header_content: value,
-                          }))
-                        }
-                        modules={quillModules}
-                        placeholder="Enter your report header (e.g., practice name, logo, contact info)..."
-                        className="header-editor"
-                      />
-                    </div>
-                  </div>
+                  <RichTextEditorCard
+                    label="Report Header"
+                    value={reportSettings.report_header_content}
+                    onChange={(value) =>
+                      setReportSettings((prev) => ({
+                        ...prev,
+                        report_header_content: value,
+                      }))
+                    }
+                    classname="header-editor"
+                    placeholder="Enter your report header (e.g., practice name, logo, contact info)..."
+                  />
 
-                  <div>
-                    <Label
-                      className="text-sm font-medium mb-3 block"
-                      style={{ color: "var(--text-primary)" }}
-                    >
-                      Report Footer
-                    </Label>
-                    <div className="border rounded-lg">
-                      <ReactQuill
-                        value={reportSettings.report_footer_content}
-                        onChange={(value) =>
-                          setReportSettings((prev) => ({
-                            ...prev,
-                            report_footer_content: value,
-                          }))
-                        }
-                        modules={quillModules}
-                        placeholder="Enter your report footer (e.g., confidentiality notice, contact info)..."
-                        className="footer-editor"
-                      />
-                    </div>
-                  </div>
+                  <RichTextEditorCard
+                    label="Report Footer"
+                    value={reportSettings.report_footer_content}
+                    onChange={(value) =>
+                      setReportSettings((prev) => ({
+                        ...prev,
+                        report_footer_content: value,
+                      }))
+                    }
+                    classname="footer-editor"
+                    placeholder="Enter your report footer (e.g., confidentiality notice, contact info)..."
+                  />
 
                   <div className="flex justify-end">
                     <Button
