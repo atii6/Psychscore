@@ -70,12 +70,11 @@ export async function fetchWrapper<TData, TBody = unknown>({
   method = "GET",
   url,
   body,
-  baseUrl = "http://localhost:5000/api",
   customClientErrorHandler,
   ...additionalOptions
 }: Config<TBody>): Promise<TData> {
   const isFormData = body instanceof FormData;
-
+  const baseUrl = (import.meta as ImportMeta & { env: any }).env.VITE_API_URL;
   const options: RequestInit = {
     ...additionalOptions,
     method,
