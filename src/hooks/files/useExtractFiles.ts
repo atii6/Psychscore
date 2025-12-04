@@ -35,7 +35,7 @@ export default function useExtractFile() {
     mutationFn: extractFile,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["extractedFiles", variables.uploadId],
+        queryKey: ["extractedFiles"],
       });
     },
     onError: (err: any) => {

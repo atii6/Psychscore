@@ -23,9 +23,9 @@ export default function useUpdateScoreDescriptor() {
   const queryClient = useQueryClient();
   return useMutation<UserScoreDescriptorType, Error, MutationVariables>({
     mutationFn: updateScoreDescriptor,
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["userScoreDescriptors", variables.id],
+        queryKey: ["userScoreDescriptors"],
       });
       toast.success("Score descriptor updated successfully.");
     },

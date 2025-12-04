@@ -23,9 +23,9 @@ export default function useUpdateTestDefinition() {
   const queryClient = useQueryClient();
   return useMutation<TestDefinitionType, Error, MutationVariables>({
     mutationFn: updateTestDefinition,
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["testDefinitions", variables.id],
+        queryKey: ["testDefinitions"],
       });
       toast.success("Test updated successfully.");
     },
