@@ -32,7 +32,18 @@ export default function Layout({ children }: LayoutProps) {
     }
   }, [initializeUser]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return (
+      <div className="w-full h-screen flex justify-center items-center bg-transparent">
+        <div className="w-56 h-24 animate-fadeInOut">
+          <img
+            src="/psychscore_logo.png"
+            alt="Logo"
+            className="w-full h-full object-contain animate-fadeInOut"
+          />
+        </div>
+      </div>
+    );
 
   if (!user) {
     return <PreAuthLayout>{children}</PreAuthLayout>;
