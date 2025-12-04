@@ -4,6 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import SystemTemplateActions from "./SystemTemplateActions";
 import UserTemplateActions from "./UserTemplateActions";
 import { Badge } from "@/components/ui/badge";
+import useUserStore from "@/store/userStore";
+import React from "react";
+import { USER_ROLES } from "@/utilitites/constants";
 
 type Props = {
   template: ReportTemplateType;
@@ -13,6 +16,7 @@ type Props = {
 };
 
 function TemplateCard({ template, editingId, onCopy, onEdit }: Props) {
+  const user = useUserStore(React.useCallback((state) => state.user, []));
   return (
     <Card
       key={template.id}
@@ -66,7 +70,7 @@ function TemplateCard({ template, editingId, onCopy, onEdit }: Props) {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-100 mt-auto">
-            {template.is_system_template ? (
+            {template.is_system_template && user?.role !== USER_ROLES.ADMIN ? (
               <SystemTemplateActions template={template} onCopy={onCopy} />
             ) : (
               <UserTemplateActions template={template} onEdit={onEdit} />

@@ -11,6 +11,7 @@ import { Save, X } from "lucide-react";
 import FormButton from "@/components/form/Fields/FormButton";
 import useCreateTestDefinition from "@/hooks/test-subtest-definitions/useCreateTestDefinition";
 import useUserStore from "@/store/userStore";
+import { USER_ROLES } from "@/utilitites/constants";
 
 type Props = {
   activeTab: string;
@@ -50,7 +51,8 @@ function TestCreationForm({
   const handleSubmit = async (values: TestDefValidationSchema) => {
     const testToCreate = {
       ...values,
-      is_system_template: activeTab === "system",
+      is_system_template:
+        user?.role === USER_ROLES.ADMIN && activeTab === "system",
       subtest_placeholders: values.subtests.map((s) => s.placeholder),
       created_by: user?.email,
       created_by_id: user?.id,
@@ -64,11 +66,8 @@ function TestCreationForm({
     <CustomContentCard
       title={isEditingTest ? "" : "Create New Test Definition"}
       description={
-        isEditingTest
-          ? ""
-          : activeTab === "system"
-          ? `✓ As an admin, this test definition will be automatically
-                    visible to all users (Global)`
+        user?.role === "admin" && activeTab === "system"
+          ? "✓ As an admin, this test definition will be automatically visible to all users (Global)"
           : ""
       }
       cardStyles="mb-6"

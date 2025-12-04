@@ -11,6 +11,7 @@ import CustomContentCard from "@/components/shared/CustomContentCard";
 import TestDetailCard from "@/components/pageComponents/test-bank/TestDetailCard";
 import PagesHeader from "@/components/shared/PagesHeader";
 import useUserStore from "@/store/userStore";
+import { USER_ROLES } from "@/utilitites/constants";
 
 export default function TestBankPage() {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -27,8 +28,6 @@ export default function TestBankPage() {
     () => TestSubtestDefinition?.filter((d) => d.created_by === User?.email),
     [TestSubtestDefinition]
   );
-
-  const userRole = "admin";
 
   const renderTestCard = (
     testDef: TestDefinitionType,
@@ -148,7 +147,7 @@ export default function TestBankPage() {
                     No System Test Definitions
                   </h3>
                   <p style={{ color: "var(--text-secondary)" }}>
-                    {userRole === "admin"
+                    {User?.role === USER_ROLES.ADMIN
                       ? "Create the first global test definition for all users"
                       : "No global test definitions available yet"}
                   </p>

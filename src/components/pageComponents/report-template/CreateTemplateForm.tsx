@@ -5,7 +5,7 @@ import Form from "@/components/form/Form";
 import z from "zod";
 import FormTextField from "@/components/form/Fields/FormTextField";
 import FormSelectField from "@/components/form/Fields/FormSelectField";
-import { TEMPLATE_CATEGORY_OPTIONS } from "@/utilitites/constants";
+import { TEMPLATE_CATEGORY_OPTIONS, USER_ROLES } from "@/utilitites/constants";
 import FormButton from "@/components/form/Fields/FormButton";
 import { GridItem } from "@/components/ui/Grid";
 import FormResetButton from "@/components/form/Fields/FormResetButton";
@@ -63,6 +63,7 @@ function CreateTemplateForm({
 
   type ValidationSchemaType = z.infer<typeof validationSchema>;
   const handleSubmit = async (values: ValidationSchemaType) => {
+    const isSystem = user?.role === USER_ROLES.ADMIN && !template?.id;
     const category = values.category as TemplateCategory;
 
     if (template) {
@@ -91,7 +92,7 @@ function CreateTemplateForm({
       category,
       template_content: "New Template Content",
       available_placeholders: placeholders as PlaceholdersType[],
-      is_system_template: false,
+      is_system_template: isSystem,
       is_active: true,
       is_sample: false,
       is_active_template: true,

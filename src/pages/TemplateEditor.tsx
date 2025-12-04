@@ -15,12 +15,15 @@ import CustomContentCard from "@/components/shared/CustomContentCard";
 import type { PlaceholdersType } from "@/utilitites/types/ReportTemplate";
 import { toast } from "sonner";
 import useUpdateReportTemplate from "@/hooks/report-templates/useUpdateReportTemplate";
+import useUserStore from "@/store/userStore";
+import { USER_ROLES } from "@/utilitites/constants";
 
 export default function TemplateEditor() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
   const templateId = Number(id);
+  const user = useUserStore(React.useCallback((state) => state.user, []));
   const { data: template, isLoading } = useGetReportTemplateByID(templateId);
   const { mutateAsync: updateTemplate, isPending } = useUpdateReportTemplate();
   // const [template, setTemplate] = React.useState(null);
@@ -35,7 +38,10 @@ export default function TemplateEditor() {
   const [showPreview, setShowPreview] = React.useState(false);
   const [quillRef, setQuillRef] = React.useState<ReactQuill | null>(null);
   const [newContent, setNewContent] = React.useState(templateContent);
-  const canEdit = true;
+  const canEdit =
+    (template?.created_by === user?.email ||
+      (template?.is_system_template && user?.role === USER_ROLES.ADMIN)) ??
+    false;
 
   React.useMemo(() => {
     if (templateContent && !newContent) setNewContent(templateContent);

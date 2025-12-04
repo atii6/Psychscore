@@ -9,7 +9,7 @@ import type {
   PlaceholdersType,
   ReportTemplateType,
 } from "@/utilitites/types/ReportTemplate";
-import { TEMPLATE_CATEGORY_LABELS } from "@/utilitites/constants";
+import { TEMPLATE_CATEGORY_LABELS, USER_ROLES } from "@/utilitites/constants";
 import CreateTemplateForm from "@/components/pageComponents/report-template/CreateTemplateForm";
 import TemplateCard from "@/components/pageComponents/report-template/TemplateCard";
 import { getAvailablePlaceholders } from "@/components/templates/placeholderUtils";
@@ -147,6 +147,7 @@ export default function TemplatesPage() {
           onAction={() => {
             setIsCreating(true);
             setEditingId(null);
+            setActiveTab(user?.role === USER_ROLES.ADMIN ? "system" : "user");
           }}
         />
 
