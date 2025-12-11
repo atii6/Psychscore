@@ -34,7 +34,7 @@ function ReportActions({
         size="sm"
         className="gap-2"
         onClick={onViewScores}
-        disabled={isPending}
+        disabled={isPending || assessment.extracted_scores?.length === 0}
       >
         <Eye className="w-4 h-4" />
         View Scores

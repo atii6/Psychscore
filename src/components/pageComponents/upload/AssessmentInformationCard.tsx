@@ -62,16 +62,19 @@ function AssessmentInformationCard({}: Props) {
           size={2}
           name="subjective_pronoun"
           label="Subjective Pronoun"
+          readOnly
         />
         <FormTextField
           size={2}
           name="objective_pronoun"
           label="Objective Pronoun"
+          readOnly
         />
         <FormTextField
           size={2}
           name="possessive_pronoun"
           label="Possessive Pronoun"
+          readOnly
         />
 
         <FormTextField name="test_date" label="Test Date" type="date" />

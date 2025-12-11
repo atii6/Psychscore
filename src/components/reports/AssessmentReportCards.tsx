@@ -55,7 +55,10 @@ function AssessmentReportCards({
   const navigate = useNavigate();
 
   const userTemplates = React.useMemo(
-    () => ReportTemplate?.filter((t) => t.created_by === User?.email) ?? [],
+    () =>
+      ReportTemplate?.filter(
+        (t) => t.created_by === User?.email && !t.is_system_template
+      ) ?? [],
     [ReportTemplate]
   );
 
