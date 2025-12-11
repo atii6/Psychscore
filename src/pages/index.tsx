@@ -14,17 +14,20 @@ import useUserStore from "@/store/userStore";
 
 // Create a wrapper component that uses useLocation inside the Router context
 function PagesContent() {
-  const { user, loading, initialized } = useUserStore(
+  const { user, loading } = useUserStore(
     React.useCallback((state) => state, [])
   );
 
-  if (!initialized || loading) {
+  if (loading) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+          <div className="w-56 h-24 animate-fadeInOut">
+            <img
+              src="/psychscore_logo.png"
+              alt="Logo"
+              className="w-full h-full object-contain animate-fadeInOut"
+            />
           </div>
         </div>
       </Layout>
