@@ -10,8 +10,8 @@ type AuthState = {
   user: AppUserAttributes | null;
   isLoggedIn: boolean;
   loading: boolean;
-  initialized: boolean; // Track if we've attempted to fetch user
-  setUser: (user: AppUserAttributes) => void;
+  initialized: boolean;
+  setUser: (user: AppUserAttributes | null) => void;
   logout: () => Promise<void>;
   initializeUser: () => Promise<void>;
 };
@@ -23,17 +23,29 @@ const useUserStore = create<AuthState>((set, get) => ({
   initialized: false,
 
   setUser: (user) => {
-    set({ user, isLoggedIn: !!user, initialized: true });
+    set({
+      user,
+      isLoggedIn: !!user,
+      initialized: true,
+    });
   },
 
   logout: async () => {
     try {
       localStorage.removeItem("token");
 
-      set({ user: null, isLoggedIn: false });
+      set({
+        user: null,
+        isLoggedIn: false,
+        initialized: true,
+      });
     } catch (err) {
       console.error("Failed to logout", err);
-      set({ user: null, isLoggedIn: false });
+      set({
+        user: null,
+        isLoggedIn: false,
+        initialized: true,
+      });
     }
   },
 
@@ -41,6 +53,7 @@ const useUserStore = create<AuthState>((set, get) => ({
     if (get().loading || get().initialized) return;
 
     set({ loading: true });
+
     try {
       const response = await fetchWrapper<MeResponse>({
         url: "auth/me",
@@ -53,15 +66,11 @@ const useUserStore = create<AuthState>((set, get) => ({
         loading: false,
         initialized: true,
       });
-    } catch (err) {
-      if (
-        err &&
-        typeof err === "object" &&
-        "status" in err &&
-        err.status !== 401
-      ) {
+    } catch (err: any) {
+      if (err?.status !== 401) {
         console.error("Failed to initialize user", err);
       }
+
       set({
         user: null,
         isLoggedIn: false,

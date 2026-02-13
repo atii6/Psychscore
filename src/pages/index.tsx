@@ -12,13 +12,16 @@ import { Toaster } from "sonner";
 import { ROUTES } from "@/utilitites/constants/routes";
 import useUserStore from "@/store/userStore";
 
-// Create a wrapper component that uses useLocation inside the Router context
 function PagesContent() {
-  const { user, loading } = useUserStore(
-    React.useCallback((state) => state, [])
+  const { user, loading, initializeUser, initialized } = useUserStore(
+    React.useCallback((state) => state, []),
   );
 
-  if (loading) {
+  React.useEffect(() => {
+    initializeUser();
+  }, [initializeUser]);
+
+  if (!initialized || loading) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-screen">
@@ -39,17 +42,8 @@ function PagesContent() {
       <Routes>
         {Object.values(ROUTES).map(
           ({ path, component: Component, protected: isProtected }) => {
-            if (isProtected) {
-              return (
-                <Route
-                  key={path}
-                  path={path}
-                  element={
-                    user ? <Component /> : <Navigate to="/login" replace />
-                  }
-                />
-              );
-            } else {
+            // Special handling for login route
+            if (path === "/login") {
               return (
                 <Route
                   key={path}
@@ -60,8 +54,28 @@ function PagesContent() {
                 />
               );
             }
-          }
+
+            return (
+              <Route
+                key={path}
+                path={path}
+                element={
+                  isProtected ? (
+                    user ? (
+                      <Component />
+                    ) : (
+                      <Navigate to="/login" replace />
+                    )
+                  ) : (
+                    <Component />
+                  )
+                }
+              />
+            );
+          },
         )}
+
+        {/* Fallback Route */}
         <Route
           path="*"
           element={<Navigate to={user ? "/dashboard" : "/login"} replace />}
