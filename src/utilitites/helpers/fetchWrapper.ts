@@ -15,7 +15,7 @@ interface Config<TBody> {
 
 export async function handleResponse<TData>(
   response: Response,
-  customClientErrorHandler?: (response: Response) => void
+  customClientErrorHandler?: (response: Response) => void,
 ): Promise<TData> {
   if (response.status === 401) throw new Error("Unauthorized");
 
@@ -34,7 +34,7 @@ export async function handleResponse<TData>(
       res = JSON.parse(responseText);
     } catch (parseError) {
       throw new Error(
-        `Invalid JSON response: ${responseText.substring(0, 100)}...`
+        `Invalid JSON response: ${responseText.substring(0, 100)}...`,
       );
     }
 
@@ -75,6 +75,7 @@ export async function fetchWrapper<TData, TBody = unknown>({
 }: Config<TBody>): Promise<TData> {
   const isFormData = body instanceof FormData;
   const baseUrl = (import.meta as ImportMeta & { env: any }).env.VITE_API_URL;
+  const token = localStorage.getItem("token");
   const options: RequestInit = {
     ...additionalOptions,
     method,
@@ -82,9 +83,9 @@ export async function fetchWrapper<TData, TBody = unknown>({
       ...(additionalOptions.headers || {}),
       Accept: "application/json",
       ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: isFormData ? body : body ? JSON.stringify(body) : undefined,
-    credentials: "include",
   };
   const _url = `${baseUrl}/${url}`;
 

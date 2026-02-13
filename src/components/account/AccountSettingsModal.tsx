@@ -108,7 +108,7 @@ export default function AccountSettingsModal({
   }, [userByID]);
 
   const handleLogout = async () => {
-    await logout();
+    localStorage.removeItem("token");
   };
 
   const handleSaveProfile = async () => {
@@ -131,7 +131,7 @@ export default function AccountSettingsModal({
           });
           toast.success("User info updated.");
         },
-      }
+      },
     );
     setIsEditing(false);
   };
@@ -158,7 +158,7 @@ export default function AccountSettingsModal({
             });
             toast.success("Settings updated.");
           },
-        }
+        },
       );
     }
   };
@@ -327,7 +327,7 @@ export default function AccountSettingsModal({
                     <p className="font-medium">
                       {format(
                         new Date(userByID.created_date || ""),
-                        "MMMM d, yyyy"
+                        "MMMM d, yyyy",
                       )}
                     </p>
                   </div>

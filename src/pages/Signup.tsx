@@ -40,6 +40,7 @@ export default function SignupPage() {
     };
 
     const res = await registerNewUser(user);
+    localStorage.setItem("token", res.token);
   };
 
   return (
