@@ -15,8 +15,7 @@ export function LoginForm() {
     setError("");
 
     try {
-      const response = await login({ email, password });
-      localStorage.setItem("token", response.token);
+      await login({ email, password });
     } catch (err: any) {
       setError(err?.message || "Invalid email or password");
     }

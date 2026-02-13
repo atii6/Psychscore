@@ -17,7 +17,7 @@ export interface RegisterResponse {
 }
 
 async function registerRequest(
-  payload: RegisterPayload
+  payload: RegisterPayload,
 ): Promise<RegisterResponse> {
   return fetchWrapper<RegisterResponse>({
     url: `auth/register`,
@@ -33,6 +33,7 @@ export default function useRegister() {
   return useMutation<RegisterResponse, Error, RegisterPayload>({
     mutationFn: (payload) => registerRequest(payload),
     onSuccess: (res) => {
+      localStorage.setItem("token", res.token);
       setUser(res.user);
       queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success(`Account created for ${res.user.full_name}`);

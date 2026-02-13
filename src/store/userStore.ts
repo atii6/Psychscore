@@ -28,13 +28,7 @@ const useUserStore = create<AuthState>((set, get) => ({
 
   logout: async () => {
     try {
-      await fetchWrapper({
-        url: "auth/logout",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      localStorage.removeItem("token");
 
       set({ user: null, isLoggedIn: false });
     } catch (err) {

@@ -108,7 +108,7 @@ export default function AccountSettingsModal({
   }, [userByID]);
 
   const handleLogout = async () => {
-    localStorage.removeItem("token");
+    await logout();
   };
 
   const handleSaveProfile = async () => {

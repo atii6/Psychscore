@@ -3,10 +3,7 @@ import useUserStore from "@/store/userStore";
 import { fetchWrapper } from "@/utilitites/helpers/fetchWrapper";
 
 async function logoutRequest() {
-  await fetchWrapper({
-    url: "auth/logout",
-    method: "POST",
-  });
+  localStorage.removeItem("token");
 
   return true;
 }

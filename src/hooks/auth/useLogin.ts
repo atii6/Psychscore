@@ -29,6 +29,7 @@ export default function useLogin() {
   return useMutation<LoginResponse, Error, LoginPayload>({
     mutationFn: (payload) => loginRequest(payload),
     onSuccess: (res) => {
+      localStorage.setItem("token", res.token);
       setUser(res.user);
       queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success(`Welcome back, ${res.user.full_name}!`);
