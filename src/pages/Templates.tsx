@@ -21,6 +21,9 @@ import useUserStore from "@/store/userStore";
 export default function TemplatesPage() {
   const { data: ReportTemplate, isLoading } = useGetAllReportTemplates();
   const { mutateAsync: createTemplate, isPending } = useCreateReportTemplate();
+  const [expandedCategories, setExpandedCategories] = React.useState<
+    Record<string, boolean>
+  >({});
   const { data: testDefinition } = useGetAllTestDefinitions();
   const [activeTab, setActiveTab] = React.useState("system");
   const [isCreating, setIsCreating] = React.useState(false);
@@ -28,7 +31,7 @@ export default function TemplatesPage() {
   const user = useUserStore(React.useCallback((state) => state.user, []));
   const systemTempsFlat = ReportTemplate?.filter((t) => t.is_system_template);
   const userTempsFlat = ReportTemplate?.filter(
-    (t) => t.created_by === user?.email
+    (t) => t.created_by === user?.email,
   );
 
   const groupByCategory = (templates: ReportTemplateType[]) => {
@@ -41,25 +44,40 @@ export default function TemplatesPage() {
 
         return acc;
       },
-      {}
+      {},
     );
   };
 
   const systemTemps = groupByCategory(systemTempsFlat || []);
   const userTemps = groupByCategory(userTempsFlat || []);
 
-  const expandedCategories = React.useMemo(
-    () => new Set([...Object.keys(systemTemps), ...Object.keys(userTemps)]),
-    [systemTemps, userTemps]
-  );
+  React.useEffect(() => {
+    if (Object.keys(expandedCategories).length === 0) {
+      const allCategories = [
+        ...Object.keys(systemTemps || {}),
+        ...Object.keys(userTemps || {}),
+      ];
+
+      const initialState: Record<string, boolean> = {};
+
+      allCategories.forEach((cat) => {
+        initialState[cat] = true; // expanded by default
+      });
+
+      setExpandedCategories(initialState);
+    }
+  }, [systemTemps, userTemps]);
+
+  // const expandedCategories = React.useMemo(
+  //   () => new Set([...Object.keys(systemTemps), ...Object.keys(userTemps)]),
+  //   [systemTemps, userTemps]
+  // );
 
   const toggleCategory = (category: string) => {
-    const newExpanded = new Set(expandedCategories);
-    if (newExpanded.has(category)) {
-      newExpanded.delete(category);
-    } else {
-      newExpanded.add(category);
-    }
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [category]: !prev[category],
+    }));
   };
 
   const handleOverride = async (systemTemplate: ReportTemplateType) => {
@@ -67,7 +85,7 @@ export default function TemplatesPage() {
       systemTemplate.test_type,
       systemTemplate.available_placeholders || [],
       user,
-      testDefinition
+      testDefinition,
     );
 
     const template = {
@@ -169,9 +187,9 @@ export default function TemplatesPage() {
             {systemTemps ? (
               Object.entries(systemTemps)
                 .sort(([catA], [catB]) => catA.localeCompare(catB))
-                .map(([category, templates], index) => (
+                .map(([category, templates]) => (
                   <Card
-                    key={index}
+                    key={category}
                     className="border-0 shadow-lg rounded-2xl"
                     style={{ backgroundColor: "var(--card-background)" }}
                   >
@@ -181,7 +199,7 @@ export default function TemplatesPage() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          {expandedCategories.has(category) ? (
+                          {expandedCategories[category] ? (
                             <ChevronDown
                               className="w-5 h-5"
                               style={{ color: "var(--secondary-blue)" }}
@@ -207,7 +225,7 @@ export default function TemplatesPage() {
                         </Badge>
                       </div>
                     </CardHeader>
-                    {expandedCategories.has(category) && (
+                    {expandedCategories[category] && (
                       <CardContent>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {templates.map((template) => (
@@ -248,9 +266,9 @@ export default function TemplatesPage() {
             {userTemps ? (
               Object.entries(userTemps)
                 .sort(([catA], [catB]) => catA.localeCompare(catB))
-                .map(([category, templates], index) => (
+                .map(([category, templates]) => (
                   <Card
-                    key={index}
+                    key={category}
                     className="border-0 shadow-lg rounded-2xl"
                     style={{ backgroundColor: "var(--card-background)" }}
                   >
@@ -260,7 +278,7 @@ export default function TemplatesPage() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          {expandedCategories.has(category) ? (
+                          {expandedCategories[category] ? (
                             <ChevronDown
                               className="w-5 h-5"
                               style={{ color: "var(--secondary-blue)" }}
@@ -286,7 +304,7 @@ export default function TemplatesPage() {
                         </Badge>
                       </div>
                     </CardHeader>
-                    {expandedCategories.has(category) && (
+                    {expandedCategories[category] && (
                       <CardContent>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                           {templates.map((template) => (
