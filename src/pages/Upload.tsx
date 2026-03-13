@@ -72,7 +72,7 @@ export default function UploadPage() {
   const navigate = useNavigate();
 
   const [uploadedFiles, setUploadedFiles] = React.useState<UploadFileType[]>(
-    []
+    [],
   );
   const [allExtractedScores, setAllExtractedScores] = React.useState<
     ExtractedScore[]
@@ -91,7 +91,7 @@ export default function UploadPage() {
   const handleFileSelect = async (files: FileList | File[]) => {
     const filesArray = Array.isArray(files) ? files : Array.from(files);
     const newFiles = filesArray.filter(
-      (file) => !uploadedFiles.some((f) => f.original_name === file.name)
+      (file) => !uploadedFiles.some((f) => f.original_name === file.name),
     );
 
     if (newFiles.length === 0) {
@@ -100,7 +100,7 @@ export default function UploadPage() {
 
     try {
       const results: UploadFileType[] = await Promise.all(
-        newFiles.map((file) => uploadFile({ file }))
+        newFiles.map((file) => uploadFile({ file })),
       );
 
       setUploadedFiles((prev) => [...prev, ...results]);
@@ -122,7 +122,7 @@ export default function UploadPage() {
 
         if (result.status !== "success" || !result.output?.tests) {
           throw new Error(
-            "Could not extract score data from file. The file may be unreadable or contain no relevant data."
+            "Could not extract score data from file. The file may be unreadable or contain no relevant data.",
           );
         }
 
@@ -140,20 +140,20 @@ export default function UploadPage() {
 
           // Template matching
           const personalTemplates = ReportTemplate?.filter(
-            (t) => t.created_by === User?.email
+            (t) => t.created_by === User?.email,
           );
           const systemTemplates = ReportTemplate?.filter(
-            (t) => t.is_system_template
+            (t) => t.is_system_template,
           );
 
           let templateFound = findMatchingTemplate(
             personalTemplates || [],
-            test_name
+            test_name,
           );
           if (!templateFound)
             templateFound = findMatchingTemplate(
               systemTemplates || [],
-              test_name
+              test_name,
             );
 
           if (!templateFound) {
@@ -171,7 +171,7 @@ export default function UploadPage() {
     const mappedScores = mapScoresToCanonicalNames(
       extractedTest,
       TestSubtestDefinition || [],
-      User
+      User,
     );
 
     const finalScores = mappedScores.map((score) => {
@@ -195,7 +195,7 @@ export default function UploadPage() {
   };
 
   const learnFromExtractedScores = async (
-    extractedScores: ExtractedScore[]
+    extractedScores: ExtractedScore[],
   ) => {
     try {
       const testGroups = groupScoresByTest(extractedScores);
@@ -204,14 +204,14 @@ export default function UploadPage() {
         const normalizedUploadName = normalizeForMatching(testName);
 
         const allUserDefinitions = TestSubtestDefinition?.filter(
-          (d) => d.created_by === User?.email
+          (d) => d.created_by === User?.email,
         );
 
         let matchedDefinition = allUserDefinitions?.find((def) => {
           return (
             normalizeForMatching(def.test_name) === normalizedUploadName ||
             def.test_aliases?.some(
-              (alias) => normalizeForMatching(alias) === normalizedUploadName
+              (alias) => normalizeForMatching(alias) === normalizedUploadName,
             )
           );
         });
@@ -221,7 +221,7 @@ export default function UploadPage() {
 
           const { updatedSubtests, hasChanges } = processSubtests(
             currentSubtests,
-            scores
+            scores,
           );
 
           if (hasChanges) {
@@ -256,7 +256,7 @@ export default function UploadPage() {
   };
 
   const handleSaveAssessment = async (
-    values: AssessmentValidationSchemaType
+    values: AssessmentValidationSchemaType,
   ) => {
     const assessment = {
       ...values,
@@ -290,7 +290,7 @@ export default function UploadPage() {
       setUploadedFiles((prev) => prev.filter((f) => f.id !== id));
 
       const newAllExtractedScores = allExtractedScores.filter(
-        (score) => score.test_name !== fileName
+        (score) => score.test_name !== fileName,
       );
       setAllExtractedScores(newAllExtractedScores);
 
@@ -315,11 +315,11 @@ export default function UploadPage() {
 
   const handleToggleAllScores = (
     scoresForTest: ExtractedScore[],
-    testName: string
+    testName: string,
   ) => {
     const newSelection = new Set(selectedScores);
     const scoreKeysForTest = scoresForTest.map(
-      (s) => `${testName}__${s.subtest_name}`
+      (s) => `${testName}__${s.subtest_name}`,
     );
     const allSelected = scoreKeysForTest.every((key) => newSelection.has(key));
 
@@ -349,6 +349,13 @@ export default function UploadPage() {
   };
 
   const groupedScores = groupScoresByTest(allExtractedScores);
+  const canSaveAssessment = React.useMemo(() => {
+    return (
+      isCreatingAssessment ||
+      isPendingExtraction ||
+      allExtractedScores.length === 0
+    );
+  }, [isCreatingAssessment, isPendingExtraction, allExtractedScores.length]);
 
   return (
     <div
@@ -417,7 +424,7 @@ export default function UploadPage() {
                 >
                   {Object.entries(groupedScores).map(([testName, scores]) => {
                     const selectedCount = scores.filter((score) =>
-                      selectedScores.has(`${testName}__${score.subtest_name}`)
+                      selectedScores.has(`${testName}__${score.subtest_name}`),
                     ).length;
 
                     return (
@@ -437,12 +444,12 @@ export default function UploadPage() {
                                 const keysToDelete = scores
                                   .filter((score) =>
                                     selectedScores.has(
-                                      `${testName}__${score.subtest_name}`
-                                    )
+                                      `${testName}__${score.subtest_name}`,
+                                    ),
                                   )
                                   .map(
                                     (score) =>
-                                      `${testName}__${score.subtest_name}`
+                                      `${testName}__${score.subtest_name}`,
                                   );
                                 handleDeleteSelectedScores(keysToDelete);
                               }}
@@ -492,11 +499,7 @@ export default function UploadPage() {
                   )}
                   <div className="flex justify-end pt-4 border-t mt-4">
                     <FormButton
-                      disabled={
-                        isCreatingAssessment ||
-                        isPendingExtraction ||
-                        allExtractedScores.length === 0
-                      }
+                      disabled={canSaveAssessment}
                       className="px-8 py-3 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                       style={{
                         background:

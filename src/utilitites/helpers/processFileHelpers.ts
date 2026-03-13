@@ -21,18 +21,18 @@ export const cleanString = (str: string) =>
 // Flexible matching for template detection
 export const isFlexibleMatch = (
   template: ReportTemplateType,
-  extractedTestName: string
+  extractedTestName: string,
 ) => {
   if (!template.test_type || !extractedTestName) return false;
   const templateTokens = cleanString(template.test_type).split(" ");
   return templateTokens.every((token) =>
-    cleanString(extractedTestName).includes(token)
+    cleanString(extractedTestName).includes(token),
   );
 };
 
 export const findMatchingTemplate = (
   templates: ReportTemplateType[],
-  testName: string
+  testName: string,
 ) => templates.some((t) => isFlexibleMatch(t, testName));
 
 export const generateTemplateWarning = (testName: string) =>
@@ -42,7 +42,7 @@ export const generateTemplateWarning = (testName: string) =>
 export const applyDescriptor = (
   score: ExtractedScore,
   userCustomDescriptors: UserScoreDescriptorType[],
-  useAiDescriptors: boolean
+  useAiDescriptors: boolean,
 ) => {
   let finalDescriptor = "N/A";
   let finalPercentileRange = "";
@@ -121,7 +121,7 @@ export const applyDescriptor = (
 export const mapScoresToCanonicalNames = (
   scores: ExtractedScore[],
   TestSubtestDefinition: TestDefinitionType[],
-  User: AppUserAttributes | null
+  User: AppUserAttributes | null,
 ): ExtractedScore[] => {
   try {
     const allUserDefinitions =
@@ -135,14 +135,14 @@ export const mapScoresToCanonicalNames = (
       const defs = [...allUserDefinitions, ...allSystemDefinitions];
 
       let exact = defs.find(
-        (def) => normalizeSubtest(def.test_name) === normalizedTestName
+        (def) => normalizeSubtest(def.test_name) === normalizedTestName,
       );
       if (exact) return exact;
 
       let alias = defs.find((def) =>
         def.test_aliases?.some(
-          (alias) => normalizeSubtest(alias) === normalizedTestName
-        )
+          (alias) => normalizeSubtest(alias) === normalizedTestName,
+        ),
       );
       if (alias) return alias;
 
@@ -164,8 +164,9 @@ export const mapScoresToCanonicalNames = (
         (st) =>
           normalizeSubtest(st.canonical_name) === normalizedSubtestName ||
           st.aliases?.some(
-            (alias: string) => normalizeSubtest(alias) === normalizedSubtestName
-          )
+            (alias: string) =>
+              normalizeSubtest(alias) === normalizedSubtestName,
+          ),
       );
 
       if (!subtest) return score;
