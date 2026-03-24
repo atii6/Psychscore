@@ -10,8 +10,7 @@ export interface ExtractionTestType {
 export type ExtractedFileResponseType = {
   status: string;
   output: {
-    tests: ExtractionTestType[];
-    raw_llm_outputs: string[];
+    output: { tests: ExtractionTestType[]; raw_llm_outputs: string[] };
   };
 };
 

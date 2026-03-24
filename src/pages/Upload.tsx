@@ -120,19 +120,19 @@ export default function UploadPage() {
       try {
         const result = await extractFileData({ uploadId: file.id });
 
-        if (result.status !== "success" || !result.output?.tests) {
+        if (result.status !== "success" || !result.output?.output?.tests) {
           throw new Error(
             "Could not extract score data from file. The file may be unreadable or contain no relevant data.",
           );
         }
 
-        for (const detectedTest of result.output.tests) {
+        for (const detectedTest of result.output.output.tests) {
           const { test_name, scores } = detectedTest;
 
           // Enrich scores with source info
           const flattened: ExtractedScore[] = scores.map((score) => ({
             ...score,
-            score_type: score.score_type as ScoreType,
+            score_type: "scaled_score" as ScoreType,
             test_name,
             source_file: file.filename,
           }));
@@ -413,7 +413,7 @@ export default function UploadPage() {
 
             <GridItem> {isPendingExtraction && <ProcessingCard />}</GridItem>
 
-            {hasProcessedFiles && allExtractedScores.length > 0 && (
+            {allExtractedScores.length > 0 && (
               <GridItem>
                 <CustomContentCard
                   title="Consolidated Scores"

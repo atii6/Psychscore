@@ -14,26 +14,43 @@ import type { AppUserAttributes } from "../types/User";
 export const cleanString = (str: string) =>
   str
     .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, "")
-    .replace(/\s+/g, " ")
+    .replace(/®/g, "")
+    .replace(/-/g, "")
+    .replace(/[^a-z0-9]/g, "")
     .trim();
 
 // Flexible matching for template detection
 export const isFlexibleMatch = (
   template: ReportTemplateType,
-  extractedTestName: string,
+  normalizedExtractedTestName: string,
 ) => {
-  if (!template.test_type || !extractedTestName) return false;
-  const templateTokens = cleanString(template.test_type).split(" ");
-  return templateTokens.every((token) =>
-    cleanString(extractedTestName).includes(token),
-  );
+  if (!template.test_type) return false;
+
+  const normalizedTemplate = cleanString(template.test_type);
+
+  // direct match
+  if (normalizedExtractedTestName === normalizedTemplate) return true;
+
+  // partial match (handles long names like "wechslermemoryscalefourthedition")
+  if (normalizedExtractedTestName.includes(normalizedTemplate)) return true;
+
+  if (normalizedTemplate.includes(normalizedExtractedTestName)) return true;
+
+  return false;
 };
 
 export const findMatchingTemplate = (
   templates: ReportTemplateType[],
-  testName: string,
-) => templates.some((t) => isFlexibleMatch(t, testName));
+  extractedTestName: string,
+) => {
+  if (!extractedTestName) return false;
+
+  const normalizedExtracted = cleanString(extractedTestName);
+
+  return templates.find((template) =>
+    isFlexibleMatch(template, normalizedExtracted),
+  );
+};
 
 export const generateTemplateWarning = (testName: string) =>
   `Warning: No report template found for "${testName}". You can create one in the 'My Templates' page, or use the Reports page to select from similar templates.`;

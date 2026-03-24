@@ -1,13 +1,13 @@
-import { useFormContext } from "react-hook-form";
+import { useFormState } from "react-hook-form";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import type { GridItemProps } from "@/components/ui/Grid/GridItem";
 
 type FormButtonProps = ButtonProps & GridItemProps;
 
 const FormButton = ({ ...props }: FormButtonProps) => {
-  const { formState } = useFormContext();
+  const { isSubmitting, isValid } = useFormState();
   const { children, className, disabled, variant, ...rest } = props;
-  const isDisabled = formState.isSubmitting || !formState.isValid || disabled;
+  const isDisabled = isSubmitting || !isValid || disabled;
 
   return (
     <Button
@@ -18,7 +18,7 @@ const FormButton = ({ ...props }: FormButtonProps) => {
       className={className}
       variant={variant}
     >
-      {formState.isSubmitting ? "Loading..." : children}
+      {isSubmitting ? "Loading..." : children}
     </Button>
   );
 };
